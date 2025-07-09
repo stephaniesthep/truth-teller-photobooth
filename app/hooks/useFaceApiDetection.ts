@@ -1,5 +1,5 @@
-import { useRef, useCallback, useState, useEffect } from 'react'
 import * as faceapi from 'face-api.js'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 interface FaceDetection {
   x: number
@@ -30,8 +30,8 @@ export const useAdvancedFaceDetection = (): UseAdvancedFaceDetectionReturn => {
   const [detectedFaces, setDetectedFaces] = useState<FaceDetection[]>([])
   const [error, setError] = useState<string | null>(null)
   const lastUpdateTime = useRef<number>(0)
-  const animationFrameRef = useRef<number>()
-  const videoRef = useRef<HTMLVideoElement>()
+  const animationFrameRef = useRef<number | undefined>(undefined)
+  const videoRef = useRef<HTMLVideoElement | undefined>(undefined)
 
   // Load face-api.js models
   const loadModels = useCallback(async () => {
@@ -42,7 +42,7 @@ export const useAdvancedFaceDetection = (): UseAdvancedFaceDetectionReturn => {
 
     try {
       const MODEL_URL = '/models' // We'll need to add models to public folder
-      
+
       // Load required models
       await Promise.all([
         faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
@@ -71,7 +71,7 @@ export const useAdvancedFaceDetection = (): UseAdvancedFaceDetectionReturn => {
     }
 
     const video = videoRef.current
-    
+
     try {
       if (modelsLoaded) {
         console.log('Using face-api.js models for detection')
@@ -89,7 +89,7 @@ export const useAdvancedFaceDetection = (): UseAdvancedFaceDetectionReturn => {
         const faces: FaceDetection[] = detections.map((detection) => {
           const box = detection.detection.box
           const expressions = detection.expressions
-          
+
           // Get the dominant emotion
           const emotionEntries = Object.entries(expressions).sort(([,a], [,b]) => b - a)
           const [dominantEmotion, confidence] = emotionEntries[0]
@@ -118,7 +118,7 @@ export const useAdvancedFaceDetection = (): UseAdvancedFaceDetectionReturn => {
         // Fallback to simple detection if models aren't loaded
         await fallbackDetection(video)
       }
-      
+
       setError(null)
     } catch (err) {
       console.error('Face detection error:', err)
@@ -137,7 +137,7 @@ export const useAdvancedFaceDetection = (): UseAdvancedFaceDetectionReturn => {
     try {
       const canvas = document.createElement('canvas')
       const ctx = canvas.getContext('2d')
-      
+
       if (!ctx || video.videoWidth === 0 || video.videoHeight === 0) {
         return
       }
@@ -148,7 +148,7 @@ export const useAdvancedFaceDetection = (): UseAdvancedFaceDetectionReturn => {
 
       const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
       const faces = performImprovedFaceDetection(imageData, canvas.width, canvas.height)
-      
+
       // Throttle updates to prevent blinking (max 10 FPS for overlay updates)
       const now = Date.now()
       if (now - lastUpdateTime.current > 100) {
@@ -185,12 +185,12 @@ export const useAdvancedFaceDetection = (): UseAdvancedFaceDetectionReturn => {
       for (let y = 0; y < height - scaledRegionSize && faces.length < maxFaces; y += scaledStep) {
         for (let x = 0; x < width - scaledRegionSize && faces.length < maxFaces; x += scaledStep) {
           const analysis = analyzeRegionAdvanced(data, x, y, scaledRegionSize, width, height)
-          
+
           if (analysis.isFaceCandidate && analysis.confidence > 0.6) {
             // Check for overlaps
             const centerX = x + scaledRegionSize / 2
             const centerY = y + scaledRegionSize / 2
-            
+
             const overlaps = faces.some(face => {
               const faceCenterX = face.x + face.width / 2
               const faceCenterY = face.y + face.height / 2
@@ -239,9 +239,9 @@ export const useAdvancedFaceDetection = (): UseAdvancedFaceDetectionReturn => {
       for (let dx = 0; dx < size; dx += 2) {
         const x = startX + dx
         const y = startY + dy
-        
+
         if (x >= width || y >= height) continue
-        
+
         const pixelIndex = (y * width + x) * 4
         const r = data[pixelIndex]
         const g = data[pixelIndex + 1]
@@ -279,23 +279,23 @@ export const useAdvancedFaceDetection = (): UseAdvancedFaceDetectionReturn => {
 
     const skinRatio = skinPixels / totalPixels
     const edgeRatio = edgePixels / totalPixels
-    
+
     // More sophisticated face detection criteria
-    const isFaceCandidate = 
-      skinRatio > 0.3 && 
-      skinRatio < 0.8 && 
-      brightness > 60 && 
+    const isFaceCandidate =
+      skinRatio > 0.3 &&
+      skinRatio < 0.8 &&
+      brightness > 60 &&
       brightness < 200 &&
       edgeRatio > 0.1 &&  // Some edge structure
       skinPixels > 80
 
     // Improved emotion estimation
     const emotion = estimateAdvancedEmotion(avgR, avgG, avgB, brightness, edgeRatio)
-    
+
     // Calculate confidence based on multiple factors
-    const confidence = Math.min(0.95, 
-      (skinRatio * 0.4) + 
-      (Math.min(brightness / 120, 1) * 0.3) + 
+    const confidence = Math.min(0.95,
+      (skinRatio * 0.4) +
+      (Math.min(brightness / 120, 1) * 0.3) +
       (edgeRatio * 0.3)
     )
 
@@ -318,22 +318,22 @@ export const useAdvancedFaceDetection = (): UseAdvancedFaceDetectionReturn => {
       // HSV method approximation
       r > 60 && g > 40 && b > 25 && (r - Math.min(g, b)) > 15
     ]
-    
+
     return methods.filter(Boolean).length >= 2
   }, [])
 
   // Advanced emotion estimation
   const estimateAdvancedEmotion = useCallback((
-    r: number, 
-    g: number, 
-    b: number, 
-    brightness: number, 
+    r: number,
+    g: number,
+    b: number,
+    brightness: number,
     edgeRatio: number
   ) => {
     // More sophisticated emotion detection based on multiple factors
     const warmth = (r - b) / 255
     const saturation = (Math.max(r, g, b) - Math.min(r, g, b)) / 255
-    
+
     if (brightness > 130 && warmth > 0.1) {
       return { name: 'happy', confidence: 0.7 + Math.min(0.2, warmth) }
     } else if (brightness < 90 && edgeRatio > 0.15) {
@@ -348,25 +348,25 @@ export const useAdvancedFaceDetection = (): UseAdvancedFaceDetectionReturn => {
   const startDetection = useCallback(async (video: HTMLVideoElement) => {
     try {
       console.log('Starting detection...', { modelsLoaded, isModelLoading })
-      
+
       // Stop any existing detection first
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current)
         animationFrameRef.current = undefined
       }
-      
+
       videoRef.current = video
       setIsDetecting(true)
       setError(null)
-      
+
       // Load models if not already loaded
       if (!modelsLoaded && !isModelLoading) {
         console.log('Loading models...')
         await loadModels()
       }
-      
+
       console.log('Starting detection loop...', { modelsLoaded })
-      
+
       // Start detection - the useEffect will restart it when models load
       if (videoRef.current) {
         detectFaces()
