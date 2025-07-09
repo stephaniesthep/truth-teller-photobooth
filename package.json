@@ -19,6 +19,7 @@
   "devDependencies": {
     "@mjackson/node-fetch-server": "0.6.1",
     "@react-router/dev": "^7.5.3",
+    "@react-router/remix-routes-option-adapter": "^7.6.3",
     "@tailwindcss/vite": "^4.1.4",
     "@types/express": "^5.0.1",
     "@types/react": "^19.1.2",
@@ -26,6 +27,7 @@
     "cross-env": "^7.0.3",
     "express": "^5.1.0",
     "netlify-cli": "^20.1.1",
+    "remix-flat-routes": "^0.8.5",
     "tailwindcss": "^4.1.4",
     "typescript": "^5.8.3",
     "vite": "^6.3.3",
