@@ -3,7 +3,7 @@ import WebcamCapture from "../components/WebcamCapture"
 
 export function meta() {
 	return [
-		{ title: "Truth Teller Photobooth" },
+		{ title: "Truth Teller" },
 		{
 			name: "description",
 			content:
@@ -34,15 +34,7 @@ export default function Index() {
 	}, [])
 
 	const handleScreenshot = useCallback((imageSrc: string) => {
-		setCapturedPhotos((prev) => [imageSrc, ...prev.slice(0, 4)]) // Keep last 5 photos
-
-		// Auto-download the image
-		const link = document.createElement("a")
-		link.download = `truth-teller-photo-${Date.now()}.png`
-		link.href = imageSrc
-		document.body.appendChild(link)
-		link.click()
-		document.body.removeChild(link)
+		setCapturedPhotos((prev) => [...prev, imageSrc].slice(-5)) // Keep last 5 photos, maintain order
 	}, [])
 
 	const downloadPhoto = useCallback((imageSrc: string, index: number) => {
@@ -75,11 +67,10 @@ export default function Index() {
 						backgroundClip: "text",
 					}}
 				>
-					Truth Teller Photobooth
+					Truth Teller
 				</h1>
 				<p className="text-xl text-amber-800 font-medium">
-					AI-powered photobooth with real-time facial recognition and
-					emotion detection
+					How are you feeling? Say CHEESE! ✨
 				</p>
 			</header>
 			{/* Main Content */}
@@ -147,11 +138,8 @@ export default function Index() {
 				className="mt-16 py-6 text-center"
 				style={{ color: "#2d1b2e" }}
 			>
-				<p className="mb-2">
-					Built with React Router v7, face-api.js, and Tailwind CSS
-				</p>
 				<p className="text-sm opacity-75">
-					© 2025 Truth Teller Photobooth - AI-Powered Photo Experience
+					© 2025 Truth Teller Photobooth 
 				</p>
 			</footer>
 		</div>

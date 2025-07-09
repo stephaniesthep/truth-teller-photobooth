@@ -1,4 +1,4 @@
-import html2canvas from 'html2canvas'
+import html2canvas from 'html2canvas-pro'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useAdvancedFaceDetection } from '../hooks/useFaceApiDetection'
 import FaceApiOverlay from './FaceApiOverlay'
@@ -206,12 +206,23 @@ const WebcamCapture: React.FC<WebcamCaptureProps> = ({
       // Set the captured image to show in PhotoboothFrame
       setCapturedImage(capturedImageData)
 
-      // Wait a bit for the PhotoboothFrame to render with the image
+      // Wait for the PhotoboothFrame to render with the image
       setTimeout(async () => {
         if (frameRef.current) {
           try {
+            // Temporarily move the frame to visible area for html2canvas
+            const frameElement = frameRef.current
+            frameElement.style.position = 'fixed'
+            frameElement.style.top = '0px'
+            frameElement.style.left = '0px'
+            frameElement.style.zIndex = '9999'
+            frameElement.style.visibility = 'visible'
+            
+            // Wait a bit more for any background images to load
+            await new Promise(resolve => setTimeout(resolve, 200))
+            
             // Capture the PhotoboothFrame with html2canvas
-            const frameCanvas = await html2canvas(frameRef.current, {
+            const frameCanvas = await html2canvas(frameElement, {
               backgroundColor: null,
               width: 500,
               height: 500,
@@ -219,22 +230,34 @@ const WebcamCapture: React.FC<WebcamCaptureProps> = ({
               useCORS: true,
               allowTaint: true,
               logging: false,
-              removeContainer: true
+              removeContainer: false,
+              foreignObjectRendering: false,
+              imageTimeout: 5000
             })
 
+            // Move the frame back off-screen
+            frameElement.style.position = 'fixed'
+            frameElement.style.top = '-9999px'
+            frameElement.style.left = '-9999px'
+            frameElement.style.zIndex = '-10'
+            frameElement.style.visibility = 'hidden'
+
             // Convert to data URL
-            const framedImageSrc = frameCanvas.toDataURL('image/png')
+            const framedImageSrc = frameCanvas.toDataURL('image/png', 0.9)
             onScreenshot(framedImageSrc)
 
             // Clear the captured image after a delay
             setTimeout(() => setCapturedImage(null), 1000)
           } catch (error) {
             console.error('Error capturing framed screenshot:', error)
-            onCameraError('Failed to capture framed screenshot')
+            onCameraError(`Failed to capture framed screenshot: ${error instanceof Error ? error.message : 'Unknown error'}`)
             setCapturedImage(null)
           }
+        } else {
+          onCameraError('Frame reference not available for screenshot')
+          setCapturedImage(null)
         }
-      }, 100)
+      }, 300)
     } catch (error) {
       console.error('Error taking screenshot:', error)
       onCameraError('Failed to take screenshot')
@@ -256,6 +279,27 @@ const WebcamCapture: React.FC<WebcamCaptureProps> = ({
       }, 100)
     }
   }, [faceDetectionEnabled, isDetecting, isStreaming, startDetection, stopDetection])
+
+  // Handle keyboard events
+  useEffect(() => {
+    const handleKeyPress = (event: KeyboardEvent) => {
+      if (event.key === 'Enter') {
+        event.preventDefault()
+        if (!isStreaming && !isLoading) {
+          // Start camera if not streaming
+          startCamera()
+        } else if (isStreaming) {
+          // Take screenshot if streaming
+          takeScreenshot()
+        }
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyPress)
+    return () => {
+      document.removeEventListener('keydown', handleKeyPress)
+    }
+  }, [isStreaming, isLoading, startCamera, takeScreenshot])
 
   // Cleanup on unmount
   useEffect(() => {
@@ -293,7 +337,7 @@ const WebcamCapture: React.FC<WebcamCaptureProps> = ({
       {!isStreaming && !isLoading && (
         <div className="w-full max-w-[640px] h-[480px] bg-pink-50 flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-pink-500">
           <p className="text-pink-700 text-xl mb-2">
-            Click "Start Camera" to begin
+            Click "Start Camera" or press Enter to begin
           </p>
           <p className="text-amber-800 text-sm">
             Real-time face detection and emotion analysis ready!
@@ -316,7 +360,7 @@ const WebcamCapture: React.FC<WebcamCaptureProps> = ({
             onClick={startCamera}
             disabled={isLoading}
           >
-            {isLoading ? 'Starting...' : 'Start Camera'}
+            {isLoading ? 'Starting...' : 'Start Camera (Press Enter)'}
           </button>
         ) : (
           <>
@@ -324,7 +368,7 @@ const WebcamCapture: React.FC<WebcamCaptureProps> = ({
               className="bg-pink-400 text-white border-2 border-pink-400 px-5 py-3 text-base font-medium rounded-xl transition-all duration-200 shadow-md hover:bg-pink-500 hover:border-pink-500 hover:-translate-y-0.5 hover:shadow-lg"
               onClick={takeScreenshot}
             >
-              📸 Take Screenshot
+              📸 Take a photo (Press Enter)
             </button>
             <button
               className={`px-5 py-3 text-base font-medium rounded-xl transition-all duration-200 shadow-md hover:-translate-y-0.5 hover:shadow-lg border-2 ${
@@ -334,7 +378,7 @@ const WebcamCapture: React.FC<WebcamCaptureProps> = ({
               }`}
               onClick={toggleFaceDetection}
             >
-              {faceDetectionEnabled ? '👤 Face Detection ON' : '👤 Face Detection OFF'}
+              {faceDetectionEnabled ? 'Face Detection ON' : 'Face Detection OFF'}
             </button>
             <button
               className="bg-gray-100 text-gray-700 border-2 border-gray-300 px-5 py-3 text-base font-medium rounded-xl transition-all duration-200 shadow-md hover:bg-gray-200 hover:border-gray-400 hover:-translate-y-0.5 hover:shadow-lg"
@@ -348,12 +392,12 @@ const WebcamCapture: React.FC<WebcamCaptureProps> = ({
 
       {isStreaming && (
         <div className="mt-4 p-4 bg-pink-50 rounded-xl border-2 border-pink-200">
-          <div className="flex justify-between items-center mb-2">
+          <div className="flex justify-between items-center mb-2 gap-10">
             <p className="m-0 text-pink-700 font-semibold">
-              🤖 AI Models: {isModelLoading ? '🟡 Loading...' : (modelsLoaded ? '🟢 Ready' : '🔴 Fallback Mode')}
+              🤖 AI Models: {isModelLoading ? '🟡 Loading...' : (modelsLoaded ? '💕 Ready' : '❤ Fallback Mode')}
             </p>
             <p className="m-0 text-pink-700 font-semibold">
-              👤 Detection: {faceDetectionEnabled ? (isDetecting ? '🟢 Active' : '🟡 Starting...') : '🔴 Disabled'}
+              👤 Detection: {faceDetectionEnabled ? (isDetecting ? '💕 Active' : '🟡 Starting...') : '❤ Disabled'}
             </p>
           </div>
 
@@ -376,6 +420,11 @@ const WebcamCapture: React.FC<WebcamCaptureProps> = ({
         <div
           ref={frameRef}
           className="fixed -top-[9999px] -left-[9999px] -z-10 scale-100 origin-top-left"
+          style={{
+            visibility: 'hidden',
+            width: '500px',
+            height: '500px'
+          }}
         >
           <PhotoboothFrame imageData={capturedImage} fixedSize={true} />
         </div>

@@ -7,12 +7,15 @@ interface PhotoboothFrameProps {
 export default function PhotoboothFrame({ imageData, className = '', fixedSize = false }: PhotoboothFrameProps) {
   if (fixedSize) {
     return (
-      <div className="relative p-6 rounded-xl shadow-2xl border-4 border-pink-400 w-[500px] h-[500px] overflow-hidden bg-pink-100 box-border">
-        {/* Pattern overlay with reduced opacity */}
-        <div
-          className="absolute inset-0 rounded-xl opacity-20 bg-cover bg-center bg-no-repeat"
-          style={{ backgroundImage: "url('/images/frame-background.jpg')" }}
-        />
+      <div className="relative p-6 w-[500px] h-[500px] overflow-hidden" style={{ backgroundColor: 'transparent' }}>
+        {/* Main frame with transparent background and rounded corners */}
+        <div className="absolute inset-0 rounded-xl border-4 border-pink-400 bg-pink-100" style={{ backgroundColor: 'rgba(251, 207, 232, 0.9)' }}>
+          {/* Pattern overlay with reduced opacity */}
+          <div
+            className="absolute inset-0 rounded-xl opacity-20 bg-cover bg-center bg-no-repeat"
+            style={{ backgroundImage: "url('/images/frame-background.jpg')" }}
+          />
+        </div>
 
         {/* Logo at the top */}
         <div className="text-center mb-4 relative z-10">
