@@ -120,7 +120,7 @@ export default function Index() {
 							className="text-2xl font-semibold text-center mb-6"
 							style={{ color: "#2d1b2e" }}
 						>
-							📷 Recent Photos
+							🖼️ Recent Photos
 						</h3>
 						<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-4xl mx-auto">
 							{capturedPhotos.map((photo, index) => (
