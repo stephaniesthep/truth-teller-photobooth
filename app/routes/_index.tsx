@@ -72,7 +72,7 @@ export default function Index() {
 					Truth Teller
 				</h1>
 				<p className="text-xl text-amber-800 font-medium">
-					How are you feeling? Say CHEESE! ✨
+					Face the truth ✨
 				</p>
 			</header>
 			{/* Main Content */}

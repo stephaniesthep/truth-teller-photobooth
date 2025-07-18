@@ -167,6 +167,80 @@ const WebcamCapture: React.FC<WebcamCaptureProps> = ({
     onCameraStop()
   }, [onCameraStop, stopDetection])
 
+  // Create a manual frame using canvas as fallback
+  const createManualFrame = useCallback((imageData: string): Promise<string> => {
+    return new Promise((resolve) => {
+      const img = new Image()
+      img.onload = () => {
+        const frameCanvas = document.createElement('canvas')
+        const ctx = frameCanvas.getContext('2d')
+        
+        if (!ctx) {
+          resolve(imageData) // Return original if canvas fails
+          return
+        }
+
+        // Set frame dimensions
+        frameCanvas.width = 500
+        frameCanvas.height = 500
+
+        // Fill background with pink gradient
+        const gradient = ctx.createLinearGradient(0, 0, 500, 500)
+        gradient.addColorStop(0, '#fce7f3')
+        gradient.addColorStop(1, '#f3e8ff')
+        ctx.fillStyle = gradient
+        ctx.fillRect(0, 0, 500, 500)
+
+        // Add border
+        ctx.strokeStyle = '#ec4899'
+        ctx.lineWidth = 8
+        ctx.strokeRect(4, 4, 492, 492)
+
+        // Add title
+        ctx.fillStyle = '#be185d'
+        ctx.font = 'bold 24px serif'
+        ctx.textAlign = 'center'
+        ctx.fillText('Truth Teller', 250, 40)
+
+        // Create photo area with white background
+        ctx.fillStyle = 'white'
+        ctx.fillRect(30, 60, 440, 340)
+        
+        // Add photo border
+        ctx.strokeStyle = '#ec4899'
+        ctx.lineWidth = 4
+        ctx.strokeRect(30, 60, 440, 340)
+
+        // Draw the captured image centered in the photo area
+        const photoArea = { x: 34, y: 64, width: 432, height: 332 }
+        const imgAspect = img.width / img.height
+        const areaAspect = photoArea.width / photoArea.height
+
+        let drawWidth, drawHeight, drawX, drawY
+
+        if (imgAspect > areaAspect) {
+          // Image is wider than area
+          drawWidth = photoArea.width
+          drawHeight = photoArea.width / imgAspect
+          drawX = photoArea.x
+          drawY = photoArea.y + (photoArea.height - drawHeight) / 2
+        } else {
+          // Image is taller than area
+          drawHeight = photoArea.height
+          drawWidth = photoArea.height * imgAspect
+          drawX = photoArea.x + (photoArea.width - drawWidth) / 2
+          drawY = photoArea.y
+        }
+
+        ctx.drawImage(img, drawX, drawY, drawWidth, drawHeight)
+
+        resolve(frameCanvas.toDataURL('image/png', 0.9))
+      }
+      img.onerror = () => resolve(imageData) // Return original if image load fails
+      img.src = imageData
+    })
+  }, [])
+
   const takeScreenshot = useCallback(async () => {
     if (!videoRef.current || !canvasRef.current || !isStreaming) {
       onCameraError('Cannot take screenshot: camera not active')
@@ -208,25 +282,40 @@ const WebcamCapture: React.FC<WebcamCaptureProps> = ({
       // Convert canvas to image data URL
       const capturedImageData = canvas.toDataURL('image/png')
 
+      // GUARANTEE: Always provide at least the basic captured image
+      let finalImageSrc = capturedImageData
+
       // Set the captured image to show in PhotoboothFrame
       setCapturedImage(capturedImageData)
 
-      // Wait for the PhotoboothFrame to render with the image
-      setTimeout(async () => {
-        if (frameRef.current) {
+      // Try to create framed version, but don't fail if it doesn't work
+      try {
+        // Wait for the PhotoboothFrame to render with the image and ensure frameRef is available
+        const waitForFrameRef = async (maxAttempts = 8, delay = 150) => {
+          for (let i = 0; i < maxAttempts; i++) {
+            if (frameRef.current) {
+              return frameRef.current
+            }
+            await new Promise(resolve => setTimeout(resolve, delay))
+          }
+          return null
+        }
+
+        const frameElement = await waitForFrameRef()
+        
+        if (frameElement) {
+          // Temporarily move the frame to visible area for html2canvas
+          frameElement.style.position = 'fixed'
+          frameElement.style.top = '0px'
+          frameElement.style.left = '0px'
+          frameElement.style.zIndex = '9999'
+          frameElement.style.visibility = 'visible'
+          
+          // Wait for background images to load
+          await new Promise(resolve => setTimeout(resolve, 400))
+          
+          // Try html2canvas capture
           try {
-            // Temporarily move the frame to visible area for html2canvas
-            const frameElement = frameRef.current
-            frameElement.style.position = 'fixed'
-            frameElement.style.top = '0px'
-            frameElement.style.left = '0px'
-            frameElement.style.zIndex = '9999'
-            frameElement.style.visibility = 'visible'
-            
-            // Wait a bit more for any background images to load
-            await new Promise(resolve => setTimeout(resolve, 200))
-            
-            // Capture the PhotoboothFrame with html2canvas
             const frameCanvas = await html2canvas(frameElement, {
               backgroundColor: null,
               width: 500,
@@ -237,7 +326,7 @@ const WebcamCapture: React.FC<WebcamCaptureProps> = ({
               logging: false,
               removeContainer: false,
               foreignObjectRendering: false,
-              imageTimeout: 5000
+              imageTimeout: 3000
             })
 
             // Move the frame back off-screen
@@ -247,28 +336,44 @@ const WebcamCapture: React.FC<WebcamCaptureProps> = ({
             frameElement.style.zIndex = '-10'
             frameElement.style.visibility = 'hidden'
 
-            // Convert to data URL
-            const framedImageSrc = frameCanvas.toDataURL('image/png', 0.9)
-            onScreenshot(framedImageSrc)
+            // Use the framed version if successful
+            finalImageSrc = frameCanvas.toDataURL('image/png', 0.9)
+          } catch (html2canvasError) {
+            console.warn('html2canvas failed, using manual frame fallback:', html2canvasError)
+            
+            // Move the frame back off-screen
+            frameElement.style.position = 'fixed'
+            frameElement.style.top = '-9999px'
+            frameElement.style.left = '-9999px'
+            frameElement.style.zIndex = '-10'
+            frameElement.style.visibility = 'hidden'
 
-            // Clear the captured image after a delay
-            setTimeout(() => setCapturedImage(null), 1000)
-          } catch (error) {
-            console.error('Error capturing framed screenshot:', error)
-            onCameraError(`Failed to capture framed screenshot: ${error instanceof Error ? error.message : 'Unknown error'}`)
-            setCapturedImage(null)
+            // Use manual frame creation as fallback
+            finalImageSrc = await createManualFrame(capturedImageData)
           }
         } else {
-          onCameraError('Frame reference not available for screenshot')
-          setCapturedImage(null)
+          console.warn('Frame reference not available, using manual frame fallback')
+          // Use manual frame creation as fallback
+          finalImageSrc = await createManualFrame(capturedImageData)
         }
-      }, 300)
+      } catch (framingError) {
+        console.warn('Framing process failed, using manual frame fallback:', framingError)
+        // Use manual frame creation as final fallback
+        finalImageSrc = await createManualFrame(capturedImageData)
+      }
+
+      // GUARANTEE: Always call onScreenshot with some image
+      onScreenshot(finalImageSrc)
+
+      // Clear the captured image after a delay
+      setTimeout(() => setCapturedImage(null), 1000)
+
     } catch (error) {
       console.error('Error taking screenshot:', error)
       onCameraError('Failed to take screenshot')
       setCapturedImage(null)
     }
-  }, [isStreaming, onCameraError, onScreenshot])
+  }, [isStreaming, onCameraError, onScreenshot, createManualFrame])
 
   const toggleFaceDetection = useCallback(async () => {
     if (faceDetectionEnabled && isDetecting) {
@@ -344,9 +449,6 @@ const WebcamCapture: React.FC<WebcamCaptureProps> = ({
         <div className="w-full max-w-[640px] h-[480px] bg-pink-50 flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-pink-500">
           <p className="text-pink-700 text-xl mb-2">
             Click "Start Camera" or press Enter to begin
-          </p>
-          <p className="text-amber-800 text-sm">
-            Real-time face detection and emotion analysis ready!
           </p>
         </div>
       )}
