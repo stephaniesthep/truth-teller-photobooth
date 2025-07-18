@@ -89,10 +89,11 @@ const WebcamCapture: React.FC<WebcamCaptureProps> = ({
             onCameraStart()
 
             setTimeout(async () => {
-              if (faceDetectionEnabled) {
+              if (faceDetectionEnabled && video.readyState >= 2) {
+                console.log('Starting face detection from fallback camera start')
                 await startDetection(video)
               }
-            }, 1000)
+            }, 1500)
           }
         }
         return
@@ -122,10 +123,11 @@ const WebcamCapture: React.FC<WebcamCaptureProps> = ({
 
           // Start face detection after a longer delay to ensure video and models are ready
           setTimeout(async () => {
-            if (faceDetectionEnabled) {
+            if (faceDetectionEnabled && video.readyState >= 2) {
+              console.log('Starting face detection from camera start')
               await startDetection(video)
             }
-          }, 1000)
+          }, 1500)
         }
       }
     } catch (error) {

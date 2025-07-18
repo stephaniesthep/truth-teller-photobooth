@@ -32,6 +32,7 @@ export const useAdvancedFaceDetection = (): UseAdvancedFaceDetectionReturn => {
   const lastUpdateTime = useRef<number>(0)
   const animationFrameRef = useRef<number | undefined>(undefined)
   const videoRef = useRef<HTMLVideoElement | undefined>(undefined)
+  const watchdogRef = useRef<NodeJS.Timeout | undefined>(undefined)
 
   // Load face-api.js models
   const loadModels = useCallback(async () => {
@@ -65,16 +66,33 @@ export const useAdvancedFaceDetection = (): UseAdvancedFaceDetectionReturn => {
 
   // Advanced face detection using face-api.js
   const detectFaces = useCallback(async () => {
-    if (!videoRef.current) {
-      console.log('No video ref, stopping detection')
+    // Check if we should continue detection
+    if (!videoRef.current || !isDetecting) {
+      console.log('Stopping detection - no video ref or not detecting', {
+        hasVideo: !!videoRef.current,
+        isDetecting
+      })
       return
     }
 
     const video = videoRef.current
 
     try {
+      // Ensure video is still playing and ready
+      if (video.readyState < 2 || video.paused || video.ended) {
+        console.log('Video not ready, skipping frame', {
+          readyState: video.readyState,
+          paused: video.paused,
+          ended: video.ended
+        })
+        // Continue the loop even if this frame fails
+        if (videoRef.current && isDetecting) {
+          animationFrameRef.current = requestAnimationFrame(detectFaces)
+        }
+        return
+      }
+
       if (modelsLoaded) {
-        console.log('Using face-api.js models for detection')
         // Use face-api.js for advanced detection
         const detections = await faceapi
           .detectAllFaces(video, new faceapi.TinyFaceDetectorOptions({
@@ -83,8 +101,6 @@ export const useAdvancedFaceDetection = (): UseAdvancedFaceDetectionReturn => {
           }))
           .withFaceLandmarks()
           .withFaceExpressions()
-
-        console.log(`Detected ${detections.length} faces with face-api.js`)
 
         const faces: FaceDetection[] = detections.map((detection) => {
           const box = detection.detection.box
@@ -114,7 +130,6 @@ export const useAdvancedFaceDetection = (): UseAdvancedFaceDetectionReturn => {
           lastUpdateTime.current = now
         }
       } else {
-        console.log('Models not loaded, using fallback detection')
         // Fallback to simple detection if models aren't loaded
         await fallbackDetection(video)
       }
@@ -122,23 +137,41 @@ export const useAdvancedFaceDetection = (): UseAdvancedFaceDetectionReturn => {
       setError(null)
     } catch (err) {
       console.error('Face detection error:', err)
-      // Try fallback detection
-      await fallbackDetection(video)
+      // Don't stop the loop on errors, just try fallback
+      try {
+        await fallbackDetection(video)
+      } catch (fallbackErr) {
+        console.error('Fallback detection also failed:', fallbackErr)
+        // Clear faces on complete failure but continue loop
+        setDetectedFaces([])
+      }
     }
 
-    // Continue the detection loop
-    if (videoRef.current) {
+    // Always continue the detection loop if we should be detecting
+    if (videoRef.current && isDetecting) {
       animationFrameRef.current = requestAnimationFrame(detectFaces)
+    } else {
+      console.log('Detection loop ended', {
+        hasVideo: !!videoRef.current,
+        isDetecting
+      })
     }
-  }, [modelsLoaded])
+  }, [modelsLoaded, isDetecting])
 
   // Fallback detection method (improved version of our simple detection)
   const fallbackDetection = useCallback(async (video: HTMLVideoElement) => {
     try {
+      // Ensure video is ready
+      if (!video || video.videoWidth === 0 || video.videoHeight === 0 || video.readyState < 2) {
+        console.log('Video not ready for fallback detection')
+        return
+      }
+
       const canvas = document.createElement('canvas')
       const ctx = canvas.getContext('2d')
 
-      if (!ctx || video.videoWidth === 0 || video.videoHeight === 0) {
+      if (!ctx) {
+        console.error('Could not get canvas context for fallback detection')
         return
       }
 
@@ -157,7 +190,7 @@ export const useAdvancedFaceDetection = (): UseAdvancedFaceDetectionReturn => {
       }
     } catch (err) {
       console.error('Fallback detection error:', err)
-      setDetectedFaces([])
+      // Don't clear faces on error, just skip this frame
     }
   }, [])
 
@@ -347,12 +380,18 @@ export const useAdvancedFaceDetection = (): UseAdvancedFaceDetectionReturn => {
 
   const startDetection = useCallback(async (video: HTMLVideoElement) => {
     try {
-      console.log('Starting detection...', { modelsLoaded, isModelLoading })
+      console.log('Starting detection...', { modelsLoaded, isModelLoading, videoReady: video.readyState })
 
       // Stop any existing detection first
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current)
         animationFrameRef.current = undefined
+      }
+
+      // Clear any existing watchdog
+      if (watchdogRef.current) {
+        clearInterval(watchdogRef.current)
+        watchdogRef.current = undefined
       }
 
       videoRef.current = video
@@ -365,11 +404,40 @@ export const useAdvancedFaceDetection = (): UseAdvancedFaceDetectionReturn => {
         await loadModels()
       }
 
-      console.log('Starting detection loop...', { modelsLoaded })
+      // Wait a bit for video to be fully ready
+      await new Promise(resolve => setTimeout(resolve, 500))
 
-      // Start detection - the useEffect will restart it when models load
-      if (videoRef.current) {
+      console.log('Starting detection loop...', { modelsLoaded, videoReady: video.readyState })
+
+      // Start detection immediately
+      if (videoRef.current && video.readyState >= 2) {
+        console.log('Video is ready, starting detection loop')
         detectFaces()
+        
+        // Start watchdog to ensure detection keeps running
+        watchdogRef.current = setInterval(() => {
+          if (isDetecting && videoRef.current && !animationFrameRef.current) {
+            console.log('Watchdog: Detection loop stopped, restarting...')
+            detectFaces()
+          }
+        }, 3000) // Check every 3 seconds
+      } else {
+        console.log('Video not ready, waiting...')
+        // If video isn't ready, wait and try again
+        setTimeout(() => {
+          if (videoRef.current && videoRef.current.readyState >= 2) {
+            console.log('Video ready after wait, starting detection')
+            detectFaces()
+            
+            // Start watchdog
+            watchdogRef.current = setInterval(() => {
+              if (isDetecting && videoRef.current && !animationFrameRef.current) {
+                console.log('Watchdog: Detection loop stopped, restarting...')
+                detectFaces()
+              }
+            }, 3000)
+          }
+        }, 1000)
       }
     } catch (err) {
       console.error('Start detection error:', err)
@@ -379,9 +447,16 @@ export const useAdvancedFaceDetection = (): UseAdvancedFaceDetectionReturn => {
   }, [detectFaces, loadModels, modelsLoaded, isModelLoading])
 
   const stopDetection = useCallback(() => {
+    console.log('Stopping detection...')
     if (animationFrameRef.current) {
       cancelAnimationFrame(animationFrameRef.current)
+      animationFrameRef.current = undefined
     }
+    if (watchdogRef.current) {
+      clearInterval(watchdogRef.current)
+      watchdogRef.current = undefined
+    }
+    videoRef.current = undefined
     setIsDetecting(false)
     setDetectedFaces([])
   }, [])
@@ -391,13 +466,42 @@ export const useAdvancedFaceDetection = (): UseAdvancedFaceDetectionReturn => {
     loadModels()
   }, [loadModels])
 
-  // Restart detection when models become available
+  // Restart detection when models become available or when detection state changes
   useEffect(() => {
     if (modelsLoaded && isDetecting && videoRef.current && !animationFrameRef.current) {
       console.log('Models loaded, restarting detection loop')
       detectFaces()
     }
   }, [modelsLoaded, isDetecting, detectFaces])
+
+  // Ensure detection continues if it stops unexpectedly
+  useEffect(() => {
+    if (isDetecting && videoRef.current && !animationFrameRef.current) {
+      console.log('Detection should be running but animation frame is missing, restarting...')
+      const checkAndRestart = () => {
+        if (isDetecting && videoRef.current && !animationFrameRef.current) {
+          console.log('Restarting detection loop')
+          detectFaces()
+        }
+      }
+      
+      // Check after a short delay to see if detection loop stopped
+      const timeoutId = setTimeout(checkAndRestart, 2000)
+      return () => clearTimeout(timeoutId)
+    }
+  }, [isDetecting, detectFaces])
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current)
+      }
+      if (watchdogRef.current) {
+        clearInterval(watchdogRef.current)
+      }
+    }
+  }, [])
 
   return {
     isDetecting,
