@@ -59,8 +59,8 @@ const ModeToggle = ({ mode, onModeChange }: ModeToggleProps) => {
         <div className="mt-2 text-center">
           <p className="text-xs text-gray-600">
             {mode === "normal" 
-              ? "Boring emotion detection" 
-              : "Sassy emotion labels! 💅"
+              ? "Boring but reliable 😐" 
+              : "Sassy! 💅"
             }
           </p>
         </div>
