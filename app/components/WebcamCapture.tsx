@@ -395,8 +395,8 @@ const WebcamCapture: React.FC<WebcamCaptureProps> = ({
       // Clear the captured image after a delay
       setTimeout(() => setCapturedImage(null), 1000)
 
-      // Auto-hide preview after 2 seconds
-      setTimeout(() => setShowPreview(null), 2000)
+      // Auto-hide preview after 1.5 seconds
+      setTimeout(() => setShowPreview(null), 1500)
 
     } catch (error) {
       console.error('Error taking screenshot:', error)
