@@ -33,9 +33,9 @@ const ModeToggle = ({ mode, onModeChange }: ModeToggleProps) => {
           <button
             onClick={handleToggle}
             className={`relative w-16 h-8 rounded-full transition-all duration-300 ${
-              mode === "fun" 
-                ? "bg-gradient-to-r from-purple-500 to-pink-500" 
-                : "bg-gray-300"
+              mode === "fun"
+                ? "bg-pink-600"
+                : "bg-pink-300"
             } ${isAnimating ? "scale-95" : "scale-100"}`}
             aria-label={`Switch to ${mode === "normal" ? "fun" : "normal"} mode`}
           >
@@ -44,9 +44,6 @@ const ModeToggle = ({ mode, onModeChange }: ModeToggleProps) => {
                 mode === "fun" ? "translate-x-8" : "translate-x-1"
               }`}
             >
-              <div className="flex items-center justify-center w-full h-full text-xs">
-                {mode === "fun" ? "🎉" : "😊"}
-              </div>
             </div>
           </button>
           
@@ -62,7 +59,7 @@ const ModeToggle = ({ mode, onModeChange }: ModeToggleProps) => {
         <div className="mt-2 text-center">
           <p className="text-xs text-gray-600">
             {mode === "normal" 
-              ? "Standard emotion detection" 
+              ? "Boring emotion detection" 
               : "Sassy emotion labels! 💅"
             }
           </p>

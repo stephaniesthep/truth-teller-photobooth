@@ -27,21 +27,7 @@ export const getEmotionLabel = (emotion: string, mode: EmotionMode): string => {
 }
 
 export const getEmotionColor = (emotion: string, mode: EmotionMode): string => {
-  if (mode === "fun") {
-    // More vibrant colors for fun mode
-    const funColors: Record<string, string> = {
-      neutral: "#8b5cf6", // purple
-      happy: "#f59e0b", // amber
-      sad: "#3b82f6", // blue
-      angry: "#ef4444", // red
-      fearful: "#10b981", // emerald
-      disgusted: "#84cc16", // lime
-      surprised: "#ec4899" // pink
-    }
-    return funColors[emotion.toLowerCase()] || "#ec4899"
-  }
-  
-  // Normal mode - consistent pink theme
+  // Both modes use pink theme now
   return "#ec4899"
 }
 

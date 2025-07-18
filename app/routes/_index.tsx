@@ -39,6 +39,10 @@ export default function Index() {
 		setCapturedPhotos((prev) => [...prev, imageSrc].slice(-5)) // Keep last 5 photos, maintain order
 	}, [])
 
+	const handleDeletePhoto = useCallback((imageSrc: string) => {
+		setCapturedPhotos((prev) => prev.filter(photo => photo !== imageSrc))
+	}, [])
+
 	const downloadPhoto = useCallback((imageSrc: string, index: number) => {
 		const link = document.createElement("a")
 		link.download = `truth-teller-photo-${index + 1}-${Date.now()}.png`
@@ -105,6 +109,7 @@ export default function Index() {
 						onCameraStop={handleCameraStop}
 						onCameraError={handleCameraError}
 						onScreenshot={handleScreenshot}
+						onDeletePhoto={handleDeletePhoto}
 						mode={emotionMode}
 					/>
 				</div>
@@ -125,12 +130,19 @@ export default function Index() {
 										alt={`Captured photo ${index + 1}`}
 										className="w-full rounded-lg border-2 border-pink-200 shadow-lg"
 									/>
-									<div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
+									<div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-2">
 										<button
 											onClick={() => downloadPhoto(photo, index)}
 											className="bg-white text-gray-800 px-4 py-2 rounded-lg font-medium hover:bg-gray-100 transition-colors"
 										>
 											Download
+										</button>
+										<button
+											onClick={() => handleDeletePhoto(photo)}
+											className="bg-pink-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-pink-600 transition-colors"
+											title="Delete photo"
+										>
+											Delete
 										</button>
 									</div>
 									<div className="absolute top-2 right-2 bg-pink-500 text-white text-xs px-2 py-1 rounded-full">

@@ -10,6 +10,7 @@ interface WebcamCaptureProps {
   onCameraStop: () => void
   onCameraError: (error: string) => void
   onScreenshot: (imageSrc: string) => void
+  onDeletePhoto?: (imageSrc: string) => void
   mode?: EmotionMode
 }
 
@@ -18,6 +19,7 @@ const WebcamCapture: React.FC<WebcamCaptureProps> = ({
   onCameraStop,
   onCameraError,
   onScreenshot,
+  onDeletePhoto,
   mode = 'normal'
 }) => {
   const videoRef = useRef<HTMLVideoElement>(null)
@@ -31,6 +33,8 @@ const WebcamCapture: React.FC<WebcamCaptureProps> = ({
   const [videoSize, setVideoSize] = useState({ width: 0, height: 0 })
   const [faceDetectionEnabled, setFaceDetectionEnabled] = useState(true)
   const [capturedImage, setCapturedImage] = useState<string | null>(null)
+  const [countdown, setCountdown] = useState<number | null>(null)
+  const [showPreview, setShowPreview] = useState<string | null>(null)
 
   const {
     isDetecting,
@@ -241,6 +245,23 @@ const WebcamCapture: React.FC<WebcamCaptureProps> = ({
     })
   }, [])
 
+  const startCountdown = useCallback(async () => {
+    if (!videoRef.current || !canvasRef.current || !isStreaming) {
+      onCameraError('Cannot take screenshot: camera not active')
+      return
+    }
+
+    // Start countdown
+    for (let i = 3; i >= 1; i--) {
+      setCountdown(i)
+      await new Promise(resolve => setTimeout(resolve, 1000))
+    }
+    setCountdown(null)
+    
+    // Take the actual screenshot
+    await takeScreenshot()
+  }, [isStreaming, onCameraError])
+
   const takeScreenshot = useCallback(async () => {
     if (!videoRef.current || !canvasRef.current || !isStreaming) {
       onCameraError('Cannot take screenshot: camera not active')
@@ -304,12 +325,13 @@ const WebcamCapture: React.FC<WebcamCaptureProps> = ({
         const frameElement = await waitForFrameRef()
         
         if (frameElement) {
-          // Temporarily move the frame to visible area for html2canvas
+          // Position frame far off-screen but make it visible for html2canvas
           frameElement.style.position = 'fixed'
-          frameElement.style.top = '0px'
-          frameElement.style.left = '0px'
-          frameElement.style.zIndex = '9999'
+          frameElement.style.top = '-10000px'
+          frameElement.style.left = '-10000px'
+          frameElement.style.zIndex = '-1000'
           frameElement.style.visibility = 'visible'
+          frameElement.style.opacity = '1'
           
           // Wait for background images to load
           await new Promise(resolve => setTimeout(resolve, 400))
@@ -329,24 +351,26 @@ const WebcamCapture: React.FC<WebcamCaptureProps> = ({
               imageTimeout: 3000
             })
 
-            // Move the frame back off-screen
+            // Move the frame back to hidden state
             frameElement.style.position = 'fixed'
             frameElement.style.top = '-9999px'
             frameElement.style.left = '-9999px'
             frameElement.style.zIndex = '-10'
             frameElement.style.visibility = 'hidden'
+            frameElement.style.opacity = '0'
 
             // Use the framed version if successful
             finalImageSrc = frameCanvas.toDataURL('image/png', 0.9)
           } catch (html2canvasError) {
             console.warn('html2canvas failed, using manual frame fallback:', html2canvasError)
             
-            // Move the frame back off-screen
+            // Move the frame back to hidden state
             frameElement.style.position = 'fixed'
             frameElement.style.top = '-9999px'
             frameElement.style.left = '-9999px'
             frameElement.style.zIndex = '-10'
             frameElement.style.visibility = 'hidden'
+            frameElement.style.opacity = '0'
 
             // Use manual frame creation as fallback
             finalImageSrc = await createManualFrame(capturedImageData)
@@ -362,11 +386,17 @@ const WebcamCapture: React.FC<WebcamCaptureProps> = ({
         finalImageSrc = await createManualFrame(capturedImageData)
       }
 
+      // Show preview in center of screen
+      setShowPreview(finalImageSrc)
+      
       // GUARANTEE: Always call onScreenshot with some image
       onScreenshot(finalImageSrc)
 
       // Clear the captured image after a delay
       setTimeout(() => setCapturedImage(null), 1000)
+
+      // Auto-hide preview after 2 seconds
+      setTimeout(() => setShowPreview(null), 2000)
 
     } catch (error) {
       console.error('Error taking screenshot:', error)
@@ -399,8 +429,8 @@ const WebcamCapture: React.FC<WebcamCaptureProps> = ({
           // Start camera if not streaming
           startCamera()
         } else if (isStreaming) {
-          // Take screenshot if streaming
-          takeScreenshot()
+          // Start countdown and take screenshot if streaming
+          startCountdown()
         }
       }
     }
@@ -422,7 +452,28 @@ const WebcamCapture: React.FC<WebcamCaptureProps> = ({
 
   return (
     <div className="flex flex-col items-center gap-4">
+      {/* Photo Preview Overlay */}
+      {showPreview && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+          <div className="relative max-w-2xl max-h-full">
+            <img
+              src={showPreview}
+              alt="Photo preview"
+              className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
+            />
+          </div>
+        </div>
+      )}
+
       <div className="relative inline-block overflow-hidden max-w-full max-h-screen">
+        {/* Countdown Overlay - positioned over video area only */}
+        {countdown && (
+          <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-50 rounded-lg">
+            <div className="text-white text-9xl font-bold animate-pulse">
+              {countdown}
+            </div>
+          </div>
+        )}
         <video
           ref={videoRef}
           className={`rounded-lg border-2 border-pink-200 shadow-lg max-w-full h-auto ${isStreaming ? 'block' : 'hidden'}`}
@@ -461,39 +512,45 @@ const WebcamCapture: React.FC<WebcamCaptureProps> = ({
         </div>
       )}
 
-      <div className="flex gap-3 flex-wrap justify-center">
+      <div className="flex flex-col items-center gap-3">
         {!isStreaming ? (
           <button
             className="bg-pink-500 text-white border-2 border-pink-500 px-5 py-3 text-base font-medium rounded-xl transition-all duration-200 shadow-md hover:bg-pink-600 hover:border-pink-600 hover:-translate-y-0.5 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
             onClick={startCamera}
             disabled={isLoading}
           >
-            {isLoading ? 'Starting...' : 'Start Camera (Press Enter)'}
+            {isLoading ? 'Starting...' : 'Start Camera'}
           </button>
         ) : (
           <>
+            {/* Take photo button centered */}
             <button
-              className="bg-pink-400 text-white border-2 border-pink-400 px-5 py-3 text-base font-medium rounded-xl transition-all duration-200 shadow-md hover:bg-pink-500 hover:border-pink-500 hover:-translate-y-0.5 hover:shadow-lg"
-              onClick={takeScreenshot}
+              className="bg-pink-400 text-white border-2 border-pink-400 px-8 py-4 text-xl font-bold rounded-xl transition-all duration-200 shadow-lg hover:bg-pink-500 hover:border-pink-500 hover:-translate-y-0.5 hover:shadow-xl disabled:opacity-50"
+              onClick={startCountdown}
+              disabled={countdown !== null}
             >
-              📸 Take a photo (Press Enter)
+              📸 {countdown ? `${countdown}...` : 'Take a photo!'}
             </button>
-            <button
-              className={`px-5 py-3 text-base font-medium rounded-xl transition-all duration-200 shadow-md hover:-translate-y-0.5 hover:shadow-lg border-2 ${
-                faceDetectionEnabled
-                  ? 'bg-pink-500 text-white border-pink-500 hover:bg-pink-600 hover:border-pink-600'
-                  : 'bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200 hover:border-gray-400'
-              }`}
-              onClick={toggleFaceDetection}
-            >
-              {faceDetectionEnabled ? 'Face Detection ON' : 'Face Detection OFF'}
-            </button>
-            <button
-              className="bg-gray-100 text-gray-700 border-2 border-gray-300 px-5 py-3 text-base font-medium rounded-xl transition-all duration-200 shadow-md hover:bg-gray-200 hover:border-gray-400 hover:-translate-y-0.5 hover:shadow-lg"
-              onClick={stopCamera}
-            >
-              Stop Camera
-            </button>
+            
+            {/* Other buttons below */}
+            <div className="flex gap-3 flex-wrap justify-center">
+              <button
+                className={`px-5 py-3 text-base font-medium rounded-xl transition-all duration-200 shadow-md hover:-translate-y-0.5 hover:shadow-lg border-2 ${
+                  faceDetectionEnabled
+                    ? 'bg-pink-500 text-white border-pink-500 hover:bg-pink-600 hover:border-pink-600'
+                    : 'bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200 hover:border-gray-400'
+                }`}
+                onClick={toggleFaceDetection}
+              >
+                {faceDetectionEnabled ? 'Face Detection: ON' : 'Face Detection: OFF'}
+              </button>
+              <button
+                className="bg-gray-100 text-gray-700 border-2 border-gray-300 px-5 py-3 text-base font-medium rounded-xl transition-all duration-200 shadow-md hover:bg-gray-200 hover:border-gray-400 hover:-translate-y-0.5 hover:shadow-lg"
+                onClick={stopCamera}
+              >
+                Stop Camera
+              </button>
+            </div>
           </>
         )}
       </div>
@@ -524,19 +581,19 @@ const WebcamCapture: React.FC<WebcamCaptureProps> = ({
       />
 
       {/* Hidden PhotoboothFrame for screenshot capture */}
-      {capturedImage && (
-        <div
-          ref={frameRef}
-          className="fixed -top-[9999px] -left-[9999px] -z-10 scale-100 origin-top-left"
-          style={{
-            visibility: 'hidden',
-            width: '500px',
-            height: '500px'
-          }}
-        >
+      <div
+        ref={frameRef}
+        className="fixed -top-[9999px] -left-[9999px] -z-10 scale-100 origin-top-left"
+        style={{
+          visibility: 'hidden',
+          width: '500px',
+          height: '500px'
+        }}
+      >
+        {capturedImage && (
           <PhotoboothFrame imageData={capturedImage} fixedSize={true} />
-        </div>
-      )}
+        )}
+      </div>
     </div>
   )
 }
