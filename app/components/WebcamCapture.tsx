@@ -3,19 +3,22 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useAdvancedFaceDetection } from '../hooks/useFaceApiDetection'
 import FaceApiOverlay from './FaceApiOverlay'
 import PhotoboothFrame from './PhotoboothFrame'
+import type { EmotionMode } from '../lib/emotionMapping'
 
 interface WebcamCaptureProps {
   onCameraStart: () => void
   onCameraStop: () => void
   onCameraError: (error: string) => void
   onScreenshot: (imageSrc: string) => void
+  mode?: EmotionMode
 }
 
 const WebcamCapture: React.FC<WebcamCaptureProps> = ({
   onCameraStart,
   onCameraStop,
   onCameraError,
-  onScreenshot
+  onScreenshot,
+  mode = 'normal'
 }) => {
   const videoRef = useRef<HTMLVideoElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -330,6 +333,7 @@ const WebcamCapture: React.FC<WebcamCaptureProps> = ({
             videoHeight={videoSize.height}
             showLandmarks={false}
             showExpressions={false}
+            mode={mode}
           />
         )}
       </div>

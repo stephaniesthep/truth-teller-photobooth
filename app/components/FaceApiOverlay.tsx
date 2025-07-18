@@ -1,5 +1,6 @@
 import { useEffect, useRef, forwardRef, useMemo } from 'react'
 import * as faceapi from 'face-api.js'
+import { getEmotionLabel, getEmotionColor, type EmotionMode } from '../lib/emotionMapping'
 
 interface FaceDetection {
   x: number
@@ -20,6 +21,7 @@ interface AdvancedEmotionOverlayProps {
   className?: string
   showLandmarks?: boolean
   showExpressions?: boolean
+  mode?: EmotionMode
 }
 
 const AdvancedEmotionOverlay = forwardRef<HTMLCanvasElement, AdvancedEmotionOverlayProps>(({
@@ -28,7 +30,8 @@ const AdvancedEmotionOverlay = forwardRef<HTMLCanvasElement, AdvancedEmotionOver
   videoHeight,
   className = '',
   showLandmarks = true,
-  showExpressions = true
+  showExpressions = true,
+  mode = 'normal'
 }, ref) => {
   // Suppress unused parameter warnings - these are kept for future functionality
   void showLandmarks;
@@ -83,18 +86,20 @@ const AdvancedEmotionOverlay = forwardRef<HTMLCanvasElement, AdvancedEmotionOver
     // Only draw if we have faces to avoid unnecessary renders
     if (stableFaces.length === 0) return
 
-    // Draw clean face detection with pink squares
+    // Draw face detection with mode-aware styling
     stableFaces.forEach((face) => {
-      // Pink square outline
-      ctx.strokeStyle = '#ec4899'
-      ctx.lineWidth = 3
+      const emotionColor = getEmotionColor(face.emotion, mode)
+      
+      // Square outline with mode-aware color
+      ctx.strokeStyle = emotionColor
+      ctx.lineWidth = mode === 'fun' ? 4 : 3
       ctx.setLineDash([])
       ctx.strokeRect(face.x, face.y, face.width, face.height)
 
-      // Pink corner markers
-      const cornerSize = 20
-      ctx.strokeStyle = '#ec4899'
-      ctx.lineWidth = 4
+      // Corner markers with mode-aware styling
+      const cornerSize = mode === 'fun' ? 25 : 20
+      ctx.strokeStyle = emotionColor
+      ctx.lineWidth = mode === 'fun' ? 5 : 4
       ctx.lineCap = 'round'
 
       // Top-left corner
@@ -125,23 +130,36 @@ const AdvancedEmotionOverlay = forwardRef<HTMLCanvasElement, AdvancedEmotionOver
       ctx.lineTo(face.x + face.width, face.y + face.height - cornerSize)
       ctx.stroke()
 
-      // Simple emotion label - just the emotion name
-      const emotionText = face.emotion.toUpperCase()
+      // Mode-aware emotion label
+      const emotionText = getEmotionLabel(face.emotion, mode)
       
-      ctx.font = 'bold 16px Inter, sans-serif'
+      const fontSize = mode === 'fun' ? 18 : 16
+      ctx.font = `bold ${fontSize}px Inter, sans-serif`
       const emotionMetrics = ctx.measureText(emotionText)
       
-      // Simple pink background
-      const labelHeight = 35
+      // Mode-aware background styling
+      const labelHeight = mode === 'fun' ? 40 : 35
       const labelY = face.y - labelHeight - 5
+      const padding = mode === 'fun' ? 24 : 20
       
-      ctx.fillStyle = '#ec4899dd'
-      ctx.fillRect(face.x, labelY, emotionMetrics.width + 20, labelHeight)
+      // Background with mode-aware color and opacity
+      ctx.fillStyle = emotionColor + (mode === 'fun' ? 'ee' : 'dd')
+      ctx.fillRect(face.x, labelY, emotionMetrics.width + padding, labelHeight)
 
-      // Emotion text only
+      // Add extra styling for fun mode
+      if (mode === 'fun') {
+        // Add a subtle border to the label
+        ctx.strokeStyle = emotionColor
+        ctx.lineWidth = 2
+        ctx.strokeRect(face.x, labelY, emotionMetrics.width + padding, labelHeight)
+      }
+
+      // Emotion text with mode-aware positioning
       ctx.fillStyle = 'white'
-      ctx.font = 'bold 16px Inter, sans-serif'
-      ctx.fillText(emotionText, face.x + 10, face.y - 15)
+      ctx.font = `bold ${fontSize}px Inter, sans-serif`
+      const textY = mode === 'fun' ? face.y - 12 : face.y - 15
+      const textX = face.x + (padding / 2)
+      ctx.fillText(emotionText, textX, textY)
     })
   }, [stableFaces, videoWidth, videoHeight, canvasElement])
 

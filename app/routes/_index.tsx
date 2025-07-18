@@ -1,5 +1,6 @@
 import { useCallback, useState } from "react"
 import WebcamCapture from "../components/WebcamCapture"
+import ModeToggle, { type EmotionMode } from "../components/ModeToggle"
 
 export function meta() {
 	return [
@@ -18,6 +19,7 @@ export default function Index() {
 	>("idle")
 	const [errorMessage, setErrorMessage] = useState<string>("")
 	const [capturedPhotos, setCapturedPhotos] = useState<string[]>([])
+	const [emotionMode, setEmotionMode] = useState<EmotionMode>("normal")
 
 	const handleCameraStart = useCallback(() => {
 		setCameraStatus("active")
@@ -75,6 +77,12 @@ export default function Index() {
 			</header>
 			{/* Main Content */}
 			<main className="max-w-7xl mx-auto px-8">
+				{/* Mode Toggle */}
+				<ModeToggle
+					mode={emotionMode}
+					onModeChange={setEmotionMode}
+				/>
+				
 				{/* Error Message */}
 				{cameraStatus === "error" && errorMessage && (
 					<div
@@ -97,6 +105,7 @@ export default function Index() {
 						onCameraStop={handleCameraStop}
 						onCameraError={handleCameraError}
 						onScreenshot={handleScreenshot}
+						mode={emotionMode}
 					/>
 				</div>
 				{/* Photo Gallery */}

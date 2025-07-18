@@ -6,7 +6,9 @@
 		"build": "react-router build && node netlify/prepare.js",
 		"dev": "cross-env NODE_ENV=development node ./dev-server.js",
 		"start": "netlify serve",
-		"typecheck": "react-router typegen && tsc"
+		"typecheck:gen": "react-router typegen",
+		"typecheck:check": "pnpm --package=typescript dlx tsc --build --pretty --watch",
+		"typecheck": "pnpm typecheck:gen && pnpm typecheck:check"
 	},
 	"dependencies": {
 		"@netlify/functions": "3.1.2",
