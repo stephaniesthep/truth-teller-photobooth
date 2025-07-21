@@ -124,29 +124,33 @@ export default function Index() {
 						</h3>
 						<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-4xl mx-auto">
 							{capturedPhotos.map((photo, index) => (
-								<div key={index} className="group relative">
+								<div key={index} className="relative bg-white rounded-lg border-2 border-pink-200 shadow-lg overflow-hidden">
 									<img
 										src={photo}
 										alt={`Captured photo ${index + 1}`}
-										className="w-full rounded-lg border-2 border-pink-200 shadow-lg"
+										className="w-full aspect-square object-cover"
 									/>
-									<div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-2">
-										<button
-											onClick={() => downloadPhoto(photo, index)}
-											className="bg-white text-gray-800 px-4 py-2 rounded-lg font-medium hover:bg-gray-100 transition-colors"
-										>
-											Download
-										</button>
-										<button
-											onClick={() => handleDeletePhoto(photo)}
-											className="bg-pink-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-pink-600 transition-colors"
-											title="Delete photo"
-										>
-											Delete
-										</button>
-									</div>
+									{/* Photo number badge */}
 									<div className="absolute top-2 right-2 bg-pink-500 text-white text-xs px-2 py-1 rounded-full">
 										#{index + 1}
+									</div>
+									{/* Mobile-friendly button bar at bottom */}
+									<div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3">
+										<div className="flex gap-2 justify-center">
+											<button
+												onClick={() => downloadPhoto(photo, index)}
+												className="bg-white text-gray-800 px-4 py-2 rounded-lg font-medium hover:bg-gray-100 transition-colors text-sm flex items-center gap-1"
+											>
+												📥 Download
+											</button>
+											<button
+												onClick={() => handleDeletePhoto(photo)}
+												className="bg-pink-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-pink-600 transition-colors text-sm flex items-center gap-1"
+												title="Delete photo"
+											>
+												🗑️ Delete
+											</button>
+										</div>
 									</div>
 								</div>
 							))}
