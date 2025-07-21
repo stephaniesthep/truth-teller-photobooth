@@ -454,12 +454,25 @@ const WebcamCapture: React.FC<WebcamCaptureProps> = ({
     <div className="flex flex-col items-center gap-4">
       {/* Photo Preview Overlay */}
       {showPreview && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-          <div className="relative max-w-2xl max-h-full">
+        <div
+          className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4"
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            width: '100vw',
+            height: '100vh',
+            zIndex: 9999
+          }}
+        >
+          <div className="relative max-w-2xl max-h-full w-full flex items-center justify-center">
             <img
               src={showPreview}
               alt="Photo preview"
               className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
+              style={{ maxWidth: '90vw', maxHeight: '90vh' }}
             />
           </div>
         </div>
@@ -498,7 +511,7 @@ const WebcamCapture: React.FC<WebcamCaptureProps> = ({
 
       {!isStreaming && !isLoading && (
         <div className="w-full max-w-[640px] h-[480px] bg-pink-50 flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-pink-500">
-          <p className="text-pink-700 text-xl mb-2">
+          <p className="text-pink-700 text-xl mb-2 text-center">
             Click "Start Camera" or press Enter to begin
           </p>
         </div>
