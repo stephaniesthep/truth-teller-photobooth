@@ -47,9 +47,9 @@ const ModeToggle = ({ mode, onModeChange }: ModeToggleProps) => {
             </div>
           </button>
           
-          <span 
+          <span
             className={`text-sm font-medium transition-colors ${
-              mode === "fun" ? "text-purple-700" : "text-gray-500"
+              mode === "fun" ? "text-pink-800" : "text-gray-500"
             }`}
           >
             Fun Mode
