@@ -168,7 +168,7 @@ export default function PhotoGallery({
       {/* Gallery Header */}
       <div className="flex items-center justify-center mb-6">
         <h3 className="text-2xl font-semibold text-center" style={{ color: "#2d1b2e" }}>
-          🖼️ Recent Photos
+          Recent Photos
         </h3>
       </div>
 
@@ -259,7 +259,7 @@ export default function PhotoGallery({
                         }}
                         className="bg-white text-gray-800 px-3 py-2 rounded-lg font-medium hover:bg-gray-100 transition-colors text-sm flex items-center gap-1 shadow-md"
                       >
-                        📥 Download
+                        Download
                       </button>
                     )}
                     {onDelete && (
