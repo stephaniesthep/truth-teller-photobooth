@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useAdvancedFaceDetection } from '../hooks/useFaceApiDetection'
 import FaceApiOverlay from './FaceApiOverlay'
 import PhotoboothFrame from './PhotoboothFrame'
+import BackgroundVideo from './BackgroundVideo'
 import type { EmotionMode } from '../lib/emotionMapping'
 
 interface WebcamCaptureProps {
@@ -510,11 +511,7 @@ const WebcamCapture: React.FC<WebcamCaptureProps> = ({
       </div>
 
       {!isStreaming && !isLoading && (
-        <div className="w-full max-w-[640px] h-[480px] bg-pink-50 flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-pink-500">
-          <p className="text-pink-700 text-xl mb-2 text-center">
-            Click "Start Camera" or press Enter to begin
-          </p>
-        </div>
+        <BackgroundVideo />
       )}
 
       {isLoading && (
