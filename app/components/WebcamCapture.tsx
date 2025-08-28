@@ -452,7 +452,7 @@ const WebcamCapture: React.FC<WebcamCaptureProps> = ({
   }, [])
 
   return (
-    <div className="flex flex-col items-center gap-4">
+    <div className="flex flex-col items-center gap-2 sm:gap-3">
       {/* Photo Preview Overlay */}
       {showPreview && (
         <div
@@ -522,7 +522,7 @@ const WebcamCapture: React.FC<WebcamCaptureProps> = ({
         </div>
       )}
 
-      <div className="flex flex-col items-center gap-3">
+      <div className="flex flex-col items-center gap-2 sm:gap-3">
         {!isStreaming ? (
           <button
             className="bg-pink-500 text-white border-2 border-pink-500 px-5 py-3 text-base font-medium rounded-xl transition-all duration-200 shadow-md hover:bg-pink-600 hover:border-pink-600 hover:-translate-y-0.5 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
@@ -543,7 +543,7 @@ const WebcamCapture: React.FC<WebcamCaptureProps> = ({
             </button>
             
             {/* Other buttons below */}
-            <div className="flex gap-3 flex-wrap justify-center">
+            <div className="flex gap-2 sm:gap-3 flex-wrap justify-center">
               <button
                 className={`px-5 py-3 text-base font-medium rounded-xl transition-all duration-200 shadow-md hover:-translate-y-0.5 hover:shadow-lg border-2 ${
                   faceDetectionEnabled
@@ -566,8 +566,8 @@ const WebcamCapture: React.FC<WebcamCaptureProps> = ({
       </div>
 
       {isStreaming && (
-        <div className="mt-4 p-4 bg-pink-50 rounded-xl border-2 border-pink-200">
-          <div className="flex justify-between items-center mb-2 gap-10">
+        <div className="mt-2 sm:mt-3 p-3 sm:p-4 bg-pink-50 rounded-xl border-2 border-pink-200">
+          <div className="flex justify-between items-center mb-1 sm:mb-2 gap-4 sm:gap-10">
             <p className="m-0 text-pink-700 font-semibold">
               AI Model: {isModelLoading ? '🟡 Loading...' : (modelsLoaded ? '💕 Ready' : '❤ Fallback Mode')}
             </p>
@@ -577,7 +577,7 @@ const WebcamCapture: React.FC<WebcamCaptureProps> = ({
           </div>
 
           {faceDetectionError && (
-            <p className="mt-2 mb-0 text-pink-700 text-sm">
+            <p className="mt-1 sm:mt-2 mb-0 text-pink-700 text-sm">
               ⚠️ {faceDetectionError}
             </p>
           )}

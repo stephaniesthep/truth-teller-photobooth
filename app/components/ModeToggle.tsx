@@ -19,7 +19,7 @@ const ModeToggle = ({ mode, onModeChange }: ModeToggleProps) => {
   }
 
   return (
-    <div className="flex items-center justify-center mb-6">
+    <div className="flex items-center justify-center mb-3 sm:mb-4">
       <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-2 shadow-lg border-2 border-pink-200">
         <div className="flex items-center gap-4">
           <span 
@@ -56,7 +56,7 @@ const ModeToggle = ({ mode, onModeChange }: ModeToggleProps) => {
           </span>
         </div>
         
-        <div className="mt-2 text-center">
+        <div className="mt-1 text-center">
           <p className="text-xs text-gray-600">
             {mode === "normal" 
               ? "Boring but reliable " 

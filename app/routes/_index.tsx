@@ -55,7 +55,7 @@ export default function Index() {
 
 	return (
 		<div
-			className="min-h-screen w-full"
+			className="min-h-screen w-full flex flex-col"
 			style={{
 				background:
 					"linear-gradient(135deg, #fce7f3 0%, #f3e8ff 50%, #fce7f3 100%)",
@@ -63,9 +63,9 @@ export default function Index() {
 			}}
 		>
 			{/* Header */}
-			<header className="text-center py-8">
+			<header className="text-center py-4 sm:py-6">
 				<h1
-					className="text-5xl font-bold mb-2 font-serif italic"
+					className="text-3xl sm:text-4xl md:text-5xl font-bold mb-1 font-serif italic"
 					style={{
 						background:
 							"linear-gradient(45deg, #ec4899, #f472b6, #be185d)",
@@ -76,12 +76,12 @@ export default function Index() {
 				>
 					Truth Teller
 				</h1>
-				<p className="text-xl text-amber-800 font-medium">
+				<p className="text-lg sm:text-xl text-amber-800 font-medium">
 					Face the truth ✨
 				</p>
 			</header>
 			{/* Main Content */}
-			<main className="max-w-7xl mx-auto px-8">
+			<main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 				{/* Mode Toggle */}
 				<ModeToggle
 					mode={emotionMode}
@@ -104,7 +104,7 @@ export default function Index() {
 					</div>
 				)}
 				{/* Camera Component */}
-				<div className="mb-8">
+				<div className="mb-4 sm:mb-6">
 					<WebcamCapture
 						onCameraStart={handleCameraStart}
 						onCameraStop={handleCameraStop}
@@ -120,17 +120,17 @@ export default function Index() {
 						photos={capturedPhotos}
 						onDownload={downloadPhoto}
 						onDelete={handleDeletePhoto}
-						className="mt-8"
+						className="mt-4 sm:mt-6"
 					/>
 				)}
 			</main>
 			{/* Footer */}
 			<footer
-				className="mt-16 py-6 text-center"
+				className="mt-auto py-3 sm:py-4 text-center"
 				style={{ color: "#2d1b2e" }}
 			>
-				<p className="text-sm opacity-75">
-					© 2025 Truth Teller Photobooth 
+				<p className="text-xs sm:text-sm opacity-75">
+					© 2025 Truth Teller Photobooth
 				</p>
 			</footer>
 		</div>
