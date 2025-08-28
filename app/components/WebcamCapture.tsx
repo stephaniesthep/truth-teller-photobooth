@@ -572,10 +572,10 @@ const WebcamCapture: React.FC<WebcamCaptureProps> = ({
         <div className="mt-4 p-4 bg-pink-50 rounded-xl border-2 border-pink-200">
           <div className="flex justify-between items-center mb-2 gap-10">
             <p className="m-0 text-pink-700 font-semibold">
-              🤖 AI Model: {isModelLoading ? '🟡 Loading...' : (modelsLoaded ? '💕 Ready' : '❤ Fallback Mode')}
+              AI Model: {isModelLoading ? '🟡 Loading...' : (modelsLoaded ? '💕 Ready' : '❤ Fallback Mode')}
             </p>
             <p className="m-0 text-pink-700 font-semibold">
-              👤 Detection: {faceDetectionEnabled ? (isDetecting ? '💕 Active' : '🟡 Starting...') : '❤ Disabled'}
+              Detection: {faceDetectionEnabled ? (isDetecting ? '💕 Active' : '🟡 Starting...') : '❤ Disabled'}
             </p>
           </div>
 
