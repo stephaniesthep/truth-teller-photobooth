@@ -1,5 +1,6 @@
 import { useCallback, useState } from "react"
 import WebcamCapture from "../components/WebcamCapture"
+import PhotoGallery from "../components/PhotoGallery"
 import ModeToggle, { type EmotionMode } from "../components/ModeToggle"
 
 export function meta() {
@@ -115,47 +116,12 @@ export default function Index() {
 				</div>
 				{/* Photo Gallery */}
 				{capturedPhotos.length > 0 && (
-					<div className="mt-8">
-						<h3
-							className="text-2xl font-semibold text-center mb-6"
-							style={{ color: "#2d1b2e" }}
-						>
-							🖼️ Recent Photos
-						</h3>
-						<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-4xl mx-auto">
-							{capturedPhotos.map((photo, index) => (
-								<div key={index} className="relative bg-white rounded-lg border-2 border-pink-200 shadow-lg overflow-hidden">
-									<img
-										src={photo}
-										alt={`Captured photo ${index + 1}`}
-										className="w-full aspect-square object-cover"
-									/>
-									{/* Photo number badge */}
-									<div className="absolute top-2 right-2 bg-pink-500 text-white text-xs px-2 py-1 rounded-full">
-										#{index + 1}
-									</div>
-									{/* Mobile-friendly button bar at bottom */}
-									<div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3">
-										<div className="flex gap-2 justify-center">
-											<button
-												onClick={() => downloadPhoto(photo, index)}
-												className="bg-white text-gray-800 px-4 py-2 rounded-lg font-medium hover:bg-gray-100 transition-colors text-sm flex items-center gap-1"
-											>
-												📥 Download
-											</button>
-											<button
-												onClick={() => handleDeletePhoto(photo)}
-												className="bg-pink-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-pink-600 transition-colors text-sm flex items-center gap-1"
-												title="Delete photo"
-											>
-												🗑️ Delete
-											</button>
-										</div>
-									</div>
-								</div>
-							))}
-						</div>
-					</div>
+					<PhotoGallery
+						photos={capturedPhotos}
+						onDownload={downloadPhoto}
+						onDelete={handleDeletePhoto}
+						className="mt-8"
+					/>
 				)}
 			</main>
 			{/* Footer */}
