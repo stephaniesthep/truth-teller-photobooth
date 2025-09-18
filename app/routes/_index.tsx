@@ -114,16 +114,14 @@ export default function Index() {
 				
 				{/* Camera Component - Responsive full-width mobile container */}
 				<div className="mb-4 sm:mb-6 w-full flex justify-center">
-					<div className="camera-container-mobile-portrait camera-container-mobile-landscape camera-container-tablet-portrait camera-container-tablet-landscape camera-container-desktop camera-smooth-transition">
-						<WebcamCapture
-							onCameraStart={handleCameraStart}
-							onCameraStop={handleCameraStop}
-							onCameraError={handleCameraError}
-							onScreenshot={handleScreenshot}
-							onDeletePhoto={handleDeletePhoto}
-							mode={emotionMode}
-						/>
-					</div>
+					<WebcamCapture
+						onCameraStart={handleCameraStart}
+						onCameraStop={handleCameraStop}
+						onCameraError={handleCameraError}
+						onScreenshot={handleScreenshot}
+						onDeletePhoto={handleDeletePhoto}
+						mode={emotionMode}
+					/>
 				</div>
 				
 				{/* Photo Gallery - Enhanced responsive container */}

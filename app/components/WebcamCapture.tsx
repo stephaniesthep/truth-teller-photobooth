@@ -328,11 +328,12 @@ const WebcamCapture: React.FC<WebcamCaptureProps> = ({
         if (frameElement) {
           // Position frame far off-screen but make it visible for html2canvas
           frameElement.style.position = 'fixed'
-          frameElement.style.top = '-10000px'
-          frameElement.style.left = '-10000px'
-          frameElement.style.zIndex = '-1000'
+          frameElement.style.top = '-20000px'
+          frameElement.style.left = '-20000px'
+          frameElement.style.zIndex = '-9999'
           frameElement.style.visibility = 'visible'
           frameElement.style.opacity = '1'
+          frameElement.style.display = 'block'
           
           // Wait for background images to load
           await new Promise(resolve => setTimeout(resolve, 400))
@@ -354,11 +355,12 @@ const WebcamCapture: React.FC<WebcamCaptureProps> = ({
 
             // Move the frame back to hidden state
             frameElement.style.position = 'fixed'
-            frameElement.style.top = '-9999px'
-            frameElement.style.left = '-9999px'
-            frameElement.style.zIndex = '-10'
+            frameElement.style.top = '-20000px'
+            frameElement.style.left = '-20000px'
+            frameElement.style.zIndex = '-9999'
             frameElement.style.visibility = 'hidden'
             frameElement.style.opacity = '0'
+            frameElement.style.display = 'none'
 
             // Use the framed version if successful
             finalImageSrc = frameCanvas.toDataURL('image/png', 0.9)
@@ -367,11 +369,12 @@ const WebcamCapture: React.FC<WebcamCaptureProps> = ({
             
             // Move the frame back to hidden state
             frameElement.style.position = 'fixed'
-            frameElement.style.top = '-9999px'
-            frameElement.style.left = '-9999px'
-            frameElement.style.zIndex = '-10'
+            frameElement.style.top = '-20000px'
+            frameElement.style.left = '-20000px'
+            frameElement.style.zIndex = '-9999'
             frameElement.style.visibility = 'hidden'
             frameElement.style.opacity = '0'
+            frameElement.style.display = 'none'
 
             // Use manual frame creation as fallback
             finalImageSrc = await createManualFrame(capturedImageData)
@@ -479,48 +482,52 @@ const WebcamCapture: React.FC<WebcamCaptureProps> = ({
         </div>
       )}
 
-      <div className="relative w-full max-w-full camera-smooth-transition flex justify-center">
-        {/* Countdown Overlay - positioned over video area only */}
-        {countdown && (
-          <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-50 rounded-lg">
-            <div className="text-white text-6xl sm:text-7xl md:text-8xl lg:text-9xl font-bold animate-pulse">
-              {countdown}
-            </div>
+      {/* Countdown Overlay - positioned over video area only */}
+      {countdown && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="text-white text-6xl sm:text-7xl md:text-8xl lg:text-9xl font-bold animate-pulse">
+            {countdown}
           </div>
-        )}
-        <video
-          ref={videoRef}
-          className={`rounded-lg border-2 border-pink-200 shadow-lg camera-responsive camera-mobile-portrait camera-mobile-landscape camera-tablet-portrait camera-tablet-landscape camera-desktop camera-smooth-transition mx-auto ${isStreaming ? 'block' : 'hidden'}`}
-          autoPlay
-          playsInline
-          muted
-          style={{
-            transform: 'scaleX(-1)',
-            aspectRatio: '4/3',
-            display: 'block',
-            margin: '0 auto'
-          }}
-        />
-
-        {isStreaming && videoSize.width > 0 && (
-          <FaceApiOverlay
-            ref={overlayRef}
-            faces={faceDetectionEnabled ? detectedFaces : []}
-            videoWidth={videoSize.width}
-            videoHeight={videoSize.height}
-            showLandmarks={false}
-            showExpressions={false}
-            mode={mode}
+        </div>
+      )}
+      
+      {(isStreaming || isLoading) && (
+        <div className="relative flex justify-center camera-container-mobile-portrait camera-container-mobile-landscape camera-container-tablet-portrait camera-container-tablet-landscape camera-container-desktop">
+          <video
+            ref={videoRef}
+            className={`rounded-lg border-2 border-pink-200 shadow-lg camera-smooth-transition camera-responsive camera-mobile-portrait camera-mobile-landscape camera-tablet-portrait camera-tablet-landscape camera-desktop ${isStreaming ? 'block' : 'hidden'}`}
+            autoPlay
+            playsInline
+            muted
+            style={{
+              transform: 'scaleX(-1)',
+              display: isStreaming ? 'block' : 'none'
+            }}
           />
-        )}
-      </div>
+
+          {isStreaming && videoSize.width > 0 && (
+            <FaceApiOverlay
+              ref={overlayRef}
+              faces={faceDetectionEnabled ? detectedFaces : []}
+              videoWidth={videoSize.width}
+              videoHeight={videoSize.height}
+              showLandmarks={false}
+              showExpressions={false}
+              mode={mode}
+            />
+          )}
+        </div>
+      )}
 
       {!isStreaming && !isLoading && (
         <BackgroundVideo />
       )}
 
       {isLoading && (
-        <div className="camera-loading-responsive camera-mobile-portrait camera-mobile-landscape camera-tablet-portrait camera-tablet-landscape camera-desktop camera-smooth-transition bg-gray-900 flex items-center justify-center rounded-lg">
+        <div className="bg-gray-900 flex items-center justify-center rounded-lg camera-smooth-transition camera-loading-responsive camera-container-mobile-portrait camera-container-mobile-landscape camera-container-tablet-portrait camera-container-tablet-landscape camera-container-desktop" style={{
+          minHeight: '200px',
+          minWidth: '300px'
+        }}>
           <p className="text-indigo-400 text-lg sm:text-xl">
             Loading camera...
           </p>
@@ -598,11 +605,18 @@ const WebcamCapture: React.FC<WebcamCaptureProps> = ({
       {/* Hidden PhotoboothFrame for screenshot capture */}
       <div
         ref={frameRef}
-        className="fixed -top-[9999px] -left-[9999px] -z-10 scale-100 origin-top-left"
+        className="fixed pointer-events-none"
         style={{
-          visibility: 'hidden',
+          position: 'fixed',
+          top: '-20000px',
+          left: '-20000px',
           width: '500px',
-          height: '500px'
+          height: '500px',
+          visibility: 'hidden',
+          opacity: '0',
+          zIndex: '-9999',
+          overflow: 'hidden',
+          display: 'none'
         }}
       >
         {capturedImage && (

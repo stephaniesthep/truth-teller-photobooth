@@ -8,11 +8,17 @@ const BackgroundVideo: React.FC<BackgroundVideoProps> = ({
   className = ''
 }) => {
   return (
-    <div className={`flex items-center justify-center w-full max-w-[640px] h-[360px] sm:h-[400px] ${className}`}>
+    <div className={`flex items-center justify-center ${className}`}>
       <img
         src="/video/backgroundvideo.gif"
         alt=""
-        className="max-w-full max-h-full object-contain"
+        className="max-w-full max-h-full object-contain rounded-lg"
+        style={{
+          maxWidth: '640px',
+          maxHeight: '400px',
+          width: 'auto',
+          height: 'auto'
+        }}
       />
     </div>
   );
