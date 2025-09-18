@@ -479,7 +479,7 @@ const WebcamCapture: React.FC<WebcamCaptureProps> = ({
         </div>
       )}
 
-      <div className="relative inline-block overflow-hidden w-full max-w-full">
+      <div className="relative inline-block overflow-hidden w-full max-w-full camera-smooth-transition">
         {/* Countdown Overlay - positioned over video area only */}
         {countdown && (
           <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-50 rounded-lg">
@@ -490,14 +490,13 @@ const WebcamCapture: React.FC<WebcamCaptureProps> = ({
         )}
         <video
           ref={videoRef}
-          className={`rounded-lg border-2 border-pink-200 shadow-lg w-full max-w-[280px] sm:max-w-[360px] md:max-w-[480px] lg:max-w-[640px] h-auto ${isStreaming ? 'block' : 'hidden'}`}
+          className={`rounded-lg border-2 border-pink-200 shadow-lg camera-responsive camera-mobile-portrait camera-mobile-landscape camera-tablet-portrait camera-tablet-landscape camera-desktop camera-smooth-transition ${isStreaming ? 'block' : 'hidden'}`}
           autoPlay
           playsInline
           muted
           style={{
             transform: 'scaleX(-1)',
-            aspectRatio: '4/3',
-            maxHeight: '50vh' // Prevents taking too much screen space on mobile
+            aspectRatio: '4/3'
           }}
         />
 
@@ -519,7 +518,7 @@ const WebcamCapture: React.FC<WebcamCaptureProps> = ({
       )}
 
       {isLoading && (
-        <div className="w-full max-w-[280px] sm:max-w-[360px] md:max-w-[480px] lg:max-w-[640px] h-[210px] sm:h-[270px] md:h-[360px] lg:h-[480px] bg-gray-900 flex items-center justify-center rounded-lg">
+        <div className="camera-loading-responsive camera-mobile-portrait camera-mobile-landscape camera-tablet-portrait camera-tablet-landscape camera-desktop camera-smooth-transition bg-gray-900 flex items-center justify-center rounded-lg">
           <p className="text-indigo-400 text-lg sm:text-xl">
             Loading camera...
           </p>

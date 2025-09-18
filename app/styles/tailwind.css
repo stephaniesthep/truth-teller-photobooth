@@ -445,3 +445,133 @@ body {
     letter-spacing: -0.025em;
   }
 }
+
+/* Responsive Camera View - Mobile Portrait Full Width Solution */
+@media (max-width: 640px) and (orientation: portrait) {
+  .camera-mobile-portrait {
+    width: calc(100vw - 2rem) !important;
+    max-width: none !important;
+    aspect-ratio: 4/3;
+    height: auto !important;
+  }
+  
+  .camera-container-mobile-portrait {
+    width: 100% !important;
+    max-width: none !important;
+    padding: 0 1rem;
+  }
+}
+
+/* Mobile Landscape - Constrained for usability */
+@media (max-width: 640px) and (orientation: landscape) {
+  .camera-mobile-landscape {
+    width: 100% !important;
+    max-width: 70vw !important;
+    aspect-ratio: 4/3;
+    height: auto !important;
+  }
+  
+  .camera-container-mobile-landscape {
+    width: 100% !important;
+    max-width: 70vw !important;
+  }
+}
+
+/* Tablet Portrait - Balanced sizing */
+@media (min-width: 641px) and (max-width: 768px) and (orientation: portrait) {
+  .camera-tablet-portrait {
+    width: 100% !important;
+    max-width: 480px !important;
+    aspect-ratio: 4/3;
+    height: auto !important;
+  }
+  
+  .camera-container-tablet-portrait {
+    width: 100% !important;
+    max-width: 480px !important;
+  }
+}
+
+/* Tablet Landscape - Moderate constraints */
+@media (min-width: 641px) and (max-width: 1024px) and (orientation: landscape) {
+  .camera-tablet-landscape {
+    width: 100% !important;
+    max-width: 600px !important;
+    aspect-ratio: 4/3;
+    height: auto !important;
+  }
+  
+  .camera-container-tablet-landscape {
+    width: 100% !important;
+    max-width: 600px !important;
+  }
+}
+
+/* Desktop - Original dimensions preserved */
+@media (min-width: 1025px) {
+  .camera-desktop {
+    width: 100% !important;
+    max-width: 640px !important;
+    aspect-ratio: 4/3;
+    height: auto !important;
+  }
+  
+  .camera-container-desktop {
+    width: 100% !important;
+    max-width: 640px !important;
+  }
+}
+
+/* Universal responsive camera utilities */
+.camera-responsive {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4/3;
+  object-fit: cover;
+}
+
+/* Loading state responsive sizing */
+.camera-loading-responsive {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4/3;
+}
+
+/* Ensure smooth transitions between orientations */
+.camera-smooth-transition {
+  transition: width 0.3s ease, max-width 0.3s ease, height 0.3s ease;
+}
+
+/* Desktop Logo Size Reduction - 25% smaller for desktop viewing */
+@media (min-width: 1024px) {
+  .logo-desktop-reduced {
+    font-size: clamp(2.1rem, 6vw, 4.9rem) !important; /* 25% reduction from original clamp(2.85rem, 8vw, 6.65rem) */
+  }
+  
+  /* Maintain proportional subtitle sizing */
+  .subtitle-desktop-reduced {
+    font-size: clamp(1.125rem, 2.5vw, 2.25rem) !important; /* Proportionally reduced from lg:text-3xl */
+  }
+}
+
+/* Large Desktop - Further refinement for very large screens */
+@media (min-width: 1440px) {
+  .logo-desktop-reduced {
+    font-size: clamp(2.25rem, 5vw, 4.5rem) !important; /* Slightly more refined for large desktops */
+  }
+  
+  .subtitle-desktop-reduced {
+    font-size: clamp(1.25rem, 2vw, 2rem) !important;
+  }
+}
+
+/* Ultra-wide Desktop - Maximum size constraints */
+@media (min-width: 1920px) {
+  .logo-desktop-reduced {
+    font-size: 4.25rem !important; /* Fixed size for ultra-wide screens */
+  }
+  
+  .subtitle-desktop-reduced {
+    font-size: 1.875rem !important; /* Fixed size for ultra-wide screens */
+  }
+}

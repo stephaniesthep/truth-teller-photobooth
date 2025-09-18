@@ -66,7 +66,7 @@ export default function Index() {
 			{/* Header - Enhanced Mobile Responsive */}
 			<header className="text-center py-4 sm:py-5 md:py-6 lg:py-8 px-4 sm:px-6">
 				<h1
-					className="font-bold mb-2 sm:mb-3 font-serif italic transition-all duration-300 leading-tight tracking-tight"
+					className="font-bold mb-2 sm:mb-3 font-serif italic transition-all duration-300 leading-tight tracking-tight logo-desktop-reduced"
 					style={{
 						background:
 							"linear-gradient(45deg, #ec4899, #f472b6, #be185d)",
@@ -76,12 +76,12 @@ export default function Index() {
 						textShadow: "0 2px 4px rgba(236, 72, 153, 0.1)",
 						minHeight: "45px", // Still above 40px minimum requirement
 						lineHeight: "1.1",
-						fontSize: "clamp(2.85rem, 8vw, 6.65rem)", // 5% smaller than previous sizes
+						fontSize: "clamp(2.85rem, 8vw, 6.65rem)", // Base size for mobile/tablet, overridden by logo-desktop-reduced on desktop
 					}}
 				>
 					Truth Teller
 				</h1>
-				<p className="text-lg sm:text-xl md:text-2xl lg:text-3xl text-amber-800 font-medium transition-all duration-300 max-w-md mx-auto">
+				<p className="text-lg sm:text-xl md:text-2xl lg:text-3xl text-amber-800 font-medium transition-all duration-300 max-w-md mx-auto subtitle-desktop-reduced">
 					Face the truth ✨
 				</p>
 			</header>
@@ -112,9 +112,9 @@ export default function Index() {
 					</div>
 				)}
 				
-				{/* Camera Component - Optimized mobile container */}
+				{/* Camera Component - Responsive full-width mobile container */}
 				<div className="mb-4 sm:mb-6 w-full flex justify-center">
-					<div className="w-full max-w-[280px] sm:max-w-[360px] md:max-w-[480px] lg:max-w-[640px]">
+					<div className="camera-container-mobile-portrait camera-container-mobile-landscape camera-container-tablet-portrait camera-container-tablet-landscape camera-container-desktop camera-smooth-transition">
 						<WebcamCapture
 							onCameraStart={handleCameraStart}
 							onCameraStop={handleCameraStop}
