@@ -8,7 +8,7 @@ const BackgroundVideo: React.FC<BackgroundVideoProps> = ({
   className = ''
 }) => {
   return (
-    <div className={`flex items-center justify-center w-full crystal-ball-container ${className}`}>
+    <div className={`flex items-center justify-center w-full max-w-[640px] h-[360px] sm:h-[400px] ${className}`}>
       <img
         src="/video/backgroundvideo.gif"
         alt=""
