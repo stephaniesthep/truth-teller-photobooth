@@ -452,7 +452,7 @@ const WebcamCapture: React.FC<WebcamCaptureProps> = ({
   }, [])
 
   return (
-    <div className="flex flex-col items-center gap-2 sm:gap-3">
+    <div className="flex flex-col items-center gap-1 sm:gap-2">
       {/* Photo Preview Overlay */}
       {showPreview && (
         <div
@@ -522,7 +522,7 @@ const WebcamCapture: React.FC<WebcamCaptureProps> = ({
         </div>
       )}
 
-      <div className="flex flex-col items-center gap-2 sm:gap-3">
+      <div className="flex flex-col items-center gap-1 sm:gap-2">
         {!isStreaming ? (
           <button
             className="bg-pink-500 text-white border-2 border-pink-500 px-5 py-3 text-base font-medium rounded-xl transition-all duration-200 shadow-md hover:bg-pink-600 hover:border-pink-600 hover:-translate-y-0.5 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"

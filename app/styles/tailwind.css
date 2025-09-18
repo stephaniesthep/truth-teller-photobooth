@@ -177,3 +177,35 @@ body {
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
+
+/* Custom scrollbar styling for photo gallery */
+.photo-gallery-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: #ec4899 #f3e8ff;
+}
+
+.photo-gallery-scroll::-webkit-scrollbar {
+  height: 8px;
+}
+
+.photo-gallery-scroll::-webkit-scrollbar-track {
+  background: #f3e8ff;
+  border-radius: 4px;
+}
+
+.photo-gallery-scroll::-webkit-scrollbar-thumb {
+  background: #ec4899;
+  border-radius: 4px;
+  transition: background 0.3s ease;
+}
+
+.photo-gallery-scroll::-webkit-scrollbar-thumb:hover {
+  background: #be185d;
+}
+
+/* Mobile scrollbar styling */
+@media (max-width: 768px) {
+  .photo-gallery-scroll::-webkit-scrollbar {
+    height: 6px;
+  }
+}

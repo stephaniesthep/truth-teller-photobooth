@@ -55,17 +55,17 @@ export default function Index() {
 
 	return (
 		<div
-			className="min-h-screen w-full flex flex-col"
+			className="min-h-screen w-full max-w-full flex flex-col overflow-x-hidden"
 			style={{
 				background:
 					"linear-gradient(135deg, #fce7f3 0%, #f3e8ff 50%, #fce7f3 100%)",
 				color: "#2d1b2e",
 			}}
 		>
-			{/* Header */}
-			<header className="text-center py-4 sm:py-6">
+			{/* Header - Responsive */}
+			<header className="text-center py-2 sm:py-3 md:py-4 px-4">
 				<h1
-					className="text-3xl sm:text-4xl md:text-5xl font-bold mb-1 font-serif italic"
+					className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-1 font-serif italic transition-all duration-300"
 					style={{
 						background:
 							"linear-gradient(45deg, #ec4899, #f472b6, #be185d)",
@@ -76,35 +76,39 @@ export default function Index() {
 				>
 					Truth Teller
 				</h1>
-				<p className="text-lg sm:text-xl text-amber-800 font-medium">
+				<p className="text-base sm:text-lg md:text-xl text-amber-800 font-medium transition-all duration-300">
 					Face the truth ✨
 				</p>
 			</header>
-			{/* Main Content */}
-			<main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+			
+			{/* Main Content - Enhanced responsive layout */}
+			<main className="flex-1 w-full max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 overflow-x-hidden">
 				{/* Mode Toggle */}
-				<ModeToggle
-					mode={emotionMode}
-					onModeChange={setEmotionMode}
-				/>
+				<div className="mb-2 sm:mb-3">
+					<ModeToggle
+						mode={emotionMode}
+						onModeChange={setEmotionMode}
+					/>
+				</div>
 				
-				{/* Error Message */}
+				{/* Error Message - Responsive */}
 				{cameraStatus === "error" && errorMessage && (
 					<div
-						className="mb-6 p-4 rounded-xl border-2 border-pink-200"
+						className="mb-4 sm:mb-6 p-3 sm:p-4 rounded-lg sm:rounded-xl border-2 border-pink-200 transition-all duration-300"
 						style={{
 							backgroundColor: "rgba(236, 72, 153, 0.1)",
 						}}
 					>
 						<div className="flex items-center gap-2">
-							<div className="w-5 h-5 text-pink-700">⚠️</div>
-							<p className="text-pink-700 font-medium">Camera Error</p>
+							<div className="w-4 h-4 sm:w-5 sm:h-5 text-pink-700">⚠️</div>
+							<p className="text-pink-700 font-medium text-sm sm:text-base">Camera Error</p>
 						</div>
-						<p className="text-pink-600 mt-1">{errorMessage}</p>
+						<p className="text-pink-600 mt-1 text-sm sm:text-base">{errorMessage}</p>
 					</div>
 				)}
-				{/* Camera Component */}
-				<div className="mb-4 sm:mb-6">
+				
+				{/* Camera Component - Responsive container */}
+				<div className="mb-2 sm:mb-3 w-full overflow-hidden">
 					<WebcamCapture
 						onCameraStart={handleCameraStart}
 						onCameraStop={handleCameraStop}
@@ -114,19 +118,23 @@ export default function Index() {
 						mode={emotionMode}
 					/>
 				</div>
-				{/* Photo Gallery */}
+				
+				{/* Photo Gallery - Enhanced responsive container */}
 				{capturedPhotos.length > 0 && (
-					<PhotoGallery
-						photos={capturedPhotos}
-						onDownload={downloadPhoto}
-						onDelete={handleDeletePhoto}
-						className="mt-4 sm:mt-6"
-					/>
+					<div className="w-full overflow-hidden">
+						<PhotoGallery
+							photos={capturedPhotos}
+							onDownload={downloadPhoto}
+							onDelete={handleDeletePhoto}
+							className="mt-3 sm:mt-4 md:mt-6"
+						/>
+					</div>
 				)}
 			</main>
-			{/* Footer */}
+			
+			{/* Footer - Responsive */}
 			<footer
-				className="mt-auto py-3 sm:py-4 text-center"
+				className="mt-auto py-2 sm:py-3 md:py-4 text-center px-4 transition-all duration-300"
 				style={{ color: "#2d1b2e" }}
 			>
 				<p className="text-xs sm:text-sm opacity-75">
