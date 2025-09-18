@@ -479,22 +479,26 @@ const WebcamCapture: React.FC<WebcamCaptureProps> = ({
         </div>
       )}
 
-      <div className="relative inline-block overflow-hidden max-w-full max-h-screen">
+      <div className="relative inline-block overflow-hidden w-full max-w-full">
         {/* Countdown Overlay - positioned over video area only */}
         {countdown && (
           <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-50 rounded-lg">
-            <div className="text-white text-9xl font-bold animate-pulse">
+            <div className="text-white text-6xl sm:text-7xl md:text-8xl lg:text-9xl font-bold animate-pulse">
               {countdown}
             </div>
           </div>
         )}
         <video
           ref={videoRef}
-          className={`rounded-lg border-2 border-pink-200 shadow-lg max-w-full h-auto ${isStreaming ? 'block' : 'hidden'}`}
+          className={`rounded-lg border-2 border-pink-200 shadow-lg w-full max-w-[280px] sm:max-w-[360px] md:max-w-[480px] lg:max-w-[640px] h-auto ${isStreaming ? 'block' : 'hidden'}`}
           autoPlay
           playsInline
           muted
-          style={{ transform: 'scaleX(-1)' }}
+          style={{
+            transform: 'scaleX(-1)',
+            aspectRatio: '4/3',
+            maxHeight: '50vh' // Prevents taking too much screen space on mobile
+          }}
         />
 
         {isStreaming && videoSize.width > 0 && (
@@ -515,17 +519,17 @@ const WebcamCapture: React.FC<WebcamCaptureProps> = ({
       )}
 
       {isLoading && (
-        <div className="w-full max-w-[640px] h-[480px] bg-gray-900 flex items-center justify-center rounded-lg">
-          <p className="text-indigo-400 text-xl">
+        <div className="w-full max-w-[280px] sm:max-w-[360px] md:max-w-[480px] lg:max-w-[640px] h-[210px] sm:h-[270px] md:h-[360px] lg:h-[480px] bg-gray-900 flex items-center justify-center rounded-lg">
+          <p className="text-indigo-400 text-lg sm:text-xl">
             Loading camera...
           </p>
         </div>
       )}
 
-      <div className="flex flex-col items-center gap-1 sm:gap-2">
+      <div className="flex flex-col items-center gap-2 sm:gap-3 mt-3 sm:mt-4">
         {!isStreaming ? (
           <button
-            className="bg-pink-500 text-white border-2 border-pink-500 px-4 py-2 sm:px-5 sm:py-3 text-sm sm:text-base font-medium rounded-lg sm:rounded-xl transition-all duration-200 shadow-md hover:bg-pink-600 hover:border-pink-600 hover:-translate-y-0.5 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+            className="bg-pink-500 text-white border-2 border-pink-500 px-6 py-3 sm:px-8 sm:py-4 text-base sm:text-lg font-medium rounded-xl transition-all duration-200 shadow-md hover:bg-pink-600 hover:border-pink-600 hover:-translate-y-0.5 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px] touch-target"
             onClick={startCamera}
             disabled={isLoading}
           >
@@ -535,7 +539,7 @@ const WebcamCapture: React.FC<WebcamCaptureProps> = ({
           <>
             {/* Take photo button centered */}
             <button
-              className="bg-pink-400 text-white border-2 border-pink-400 px-6 py-3 sm:px-8 sm:py-4 text-base sm:text-lg md:text-xl font-bold rounded-lg sm:rounded-xl transition-all duration-200 shadow-lg hover:bg-pink-500 hover:border-pink-500 hover:-translate-y-0.5 hover:shadow-xl disabled:opacity-50"
+              className="bg-pink-400 text-white border-2 border-pink-400 px-8 py-4 sm:px-10 sm:py-5 text-lg sm:text-xl md:text-2xl font-bold rounded-xl transition-all duration-200 shadow-lg hover:bg-pink-500 hover:border-pink-500 hover:-translate-y-0.5 hover:shadow-xl disabled:opacity-50 min-h-[44px] touch-target"
               onClick={startCountdown}
               disabled={countdown !== null}
             >
@@ -543,9 +547,9 @@ const WebcamCapture: React.FC<WebcamCaptureProps> = ({
             </button>
             
             {/* Other buttons below */}
-            <div className="flex gap-2 sm:gap-3 flex-wrap justify-center">
+            <div className="flex gap-3 sm:gap-4 flex-wrap justify-center">
               <button
-                className={`px-3 py-2 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium rounded-lg sm:rounded-xl transition-all duration-200 shadow-md hover:-translate-y-0.5 hover:shadow-lg border-2 ${
+                className={`px-4 py-3 sm:px-5 sm:py-3 text-sm sm:text-base font-medium rounded-xl transition-all duration-200 shadow-md hover:-translate-y-0.5 hover:shadow-lg border-2 min-h-[44px] touch-target ${
                   faceDetectionEnabled
                     ? 'bg-pink-500 text-white border-pink-500 hover:bg-pink-600 hover:border-pink-600'
                     : 'bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200 hover:border-gray-400'
@@ -555,7 +559,7 @@ const WebcamCapture: React.FC<WebcamCaptureProps> = ({
                 {faceDetectionEnabled ? 'Face Detection: ON' : 'Face Detection: OFF'}
               </button>
               <button
-                className="bg-gray-100 text-gray-700 border-2 border-gray-300 px-3 py-2 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium rounded-lg sm:rounded-xl transition-all duration-200 shadow-md hover:bg-gray-200 hover:border-gray-400 hover:-translate-y-0.5 hover:shadow-lg"
+                className="bg-gray-100 text-gray-700 border-2 border-gray-300 px-4 py-3 sm:px-5 sm:py-3 text-sm sm:text-base font-medium rounded-xl transition-all duration-200 shadow-md hover:bg-gray-200 hover:border-gray-400 hover:-translate-y-0.5 hover:shadow-lg min-h-[44px] touch-target"
                 onClick={stopCamera}
               >
                 Stop Camera

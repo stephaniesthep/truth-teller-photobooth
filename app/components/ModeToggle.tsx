@@ -1,6 +1,5 @@
 import { useState } from "react"
-
-export type EmotionMode = "normal" | "fun"
+import type { EmotionMode } from "../lib/emotionMapping"
 
 interface ModeToggleProps {
   mode: EmotionMode
@@ -22,7 +21,7 @@ const ModeToggle = ({ mode, onModeChange }: ModeToggleProps) => {
     <div className="flex items-center justify-center mb-3 sm:mb-4">
       <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-2 shadow-lg border-2 border-pink-200">
         <div className="flex items-center gap-4">
-          <span 
+          <span
             className={`text-sm font-medium transition-colors ${
               mode === "normal" ? "text-pink-700" : "text-gray-500"
             }`}
@@ -58,8 +57,8 @@ const ModeToggle = ({ mode, onModeChange }: ModeToggleProps) => {
         
         <div className="mt-1 text-center">
           <p className="text-xs text-gray-600">
-            {mode === "normal" 
-              ? "Boring but reliable " 
+            {mode === "normal"
+              ? "Boring but reliable "
               : "Sassy! 💅"
             }
           </p>

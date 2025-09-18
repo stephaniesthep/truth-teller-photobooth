@@ -1,58 +1,69 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-@custom-variant dark (&:is(.dark *));
-
-@theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif,
-    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+/* Tailwind v4 theme configuration */
+@layer theme {
+  :root {
+    --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif,
+      "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    
+    /* Radius variables */
+    --radius: 0.625rem;
+    --radius-sm: calc(var(--radius) - 4px);
+    --radius-md: calc(var(--radius) - 2px);
+    --radius-lg: var(--radius);
+    --radius-xl: calc(var(--radius) + 4px);
+    
+    /* Color variables */
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+    --color-card: var(--card);
+    --color-card-foreground: var(--card-foreground);
+    --color-popover: var(--popover);
+    --color-popover-foreground: var(--popover-foreground);
+    --color-primary: var(--primary);
+    --color-primary-foreground: var(--primary-foreground);
+    --color-secondary: var(--secondary);
+    --color-secondary-foreground: var(--secondary-foreground);
+    --color-muted: var(--muted);
+    --color-muted-foreground: var(--muted-foreground);
+    --color-accent: var(--accent);
+    --color-accent-foreground: var(--accent-foreground);
+    --color-destructive: var(--destructive);
+    --color-border: var(--border);
+    --color-input: var(--input);
+    --color-ring: var(--ring);
+    --color-chart-1: var(--chart-1);
+    --color-chart-2: var(--chart-2);
+    --color-chart-3: var(--chart-3);
+    --color-chart-4: var(--chart-4);
+    --color-chart-5: var(--chart-5);
+    --color-sidebar: var(--sidebar);
+    --color-sidebar-foreground: var(--sidebar-foreground);
+    --color-sidebar-primary: var(--sidebar-primary);
+    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+    --color-sidebar-accent: var(--sidebar-accent);
+    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+    --color-sidebar-border: var(--sidebar-border);
+    --color-sidebar-ring: var(--sidebar-ring);
+  }
 }
 
 html,
 body {
-  @apply bg-white dark:bg-gray-950;
+  background-color: white;
+  color: #0f172a;
 
   @media (prefers-color-scheme: dark) {
     color-scheme: dark;
+    background-color: #020617;
+    color: #f8fafc;
   }
 }
 
-@theme inline {
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-card: var(--card);
-  --color-card-foreground: var(--card-foreground);
-  --color-popover: var(--popover);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-primary: var(--primary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-secondary: var(--secondary);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-muted: var(--muted);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-destructive: var(--destructive);
-  --color-border: var(--border);
-  --color-input: var(--input);
-  --color-ring: var(--ring);
-  --color-chart-1: var(--chart-1);
-  --color-chart-2: var(--chart-2);
-  --color-chart-3: var(--chart-3);
-  --color-chart-4: var(--chart-4);
-  --color-chart-5: var(--chart-5);
-  --color-sidebar: var(--sidebar);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-ring: var(--sidebar-ring);
+.dark {
+  background-color: #020617;
+  color: #f8fafc;
 }
 
 :root {
@@ -126,10 +137,12 @@ body {
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    border-color: var(--color-border);
+    outline-color: rgb(var(--color-ring) / 0.5);
   }
   body {
-    @apply bg-background text-foreground;
+    background-color: var(--color-background);
+    color: var(--color-foreground);
   }
 }
 
@@ -155,17 +168,13 @@ html, body {
 
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
   min-width: 320px;
   min-height: 100vh;
 }
 
 #root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+  width: 100%;
+  min-height: 100vh;
 }
 
 /* Custom scrollbar hiding utility */
@@ -207,5 +216,232 @@ body {
 @media (max-width: 768px) {
   .photo-gallery-scroll::-webkit-scrollbar {
     height: 6px;
+  }
+}
+
+/* Mobile-specific logo and layout enhancements */
+@media (max-width: 640px) {
+  /* Ensure logo meets minimum 48px height requirement */
+  .mobile-logo-enhanced {
+    font-size: 3rem !important; /* 48px */
+    line-height: 1.1 !important;
+    letter-spacing: -0.02em;
+    min-height: 48px;
+  }
+  
+  /* Mobile camera view constraints */
+  .mobile-camera-view {
+    max-width: 85vw;
+    max-height: 50vh;
+    aspect-ratio: 4/3;
+  }
+  
+  /* Enhanced mobile header spacing */
+  .mobile-header {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+/* Touch-friendly button sizing for all mobile devices */
+@media (max-width: 768px) {
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+    padding: 12px 16px;
+    border-radius: 12px;
+  }
+  
+  /* Enhanced button spacing */
+  .mobile-button-spacing {
+    gap: 12px;
+    margin-top: 16px;
+  }
+  
+  /* Mobile typography scaling */
+  .mobile-text-scale {
+    font-size: clamp(1rem, 4vw, 1.25rem);
+  }
+}
+
+/* High-DPI display optimizations */
+@media (min-resolution: 2dppx) {
+  .logo-gradient-enhanced {
+    background: linear-gradient(45deg, #ec4899, #f472b6, #be185d, #ec4899);
+    background-size: 200% 200%;
+    animation: gradient-shift 3s ease infinite;
+  }
+}
+
+@keyframes gradient-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+/* Responsive container improvements */
+@media (max-width: 480px) {
+  /* Extra small screens - phones in portrait */
+  .xs-container {
+    max-width: 95vw;
+    padding: 0.75rem;
+  }
+  
+  .xs-logo {
+    font-size: 2.5rem; /* 40px minimum */
+    line-height: 1.2;
+  }
+}
+
+@media (min-width: 481px) and (max-width: 640px) {
+  /* Small screens - phones in landscape */
+  .sm-container {
+    max-width: 90vw;
+    padding: 1rem;
+  }
+}
+
+@media (min-width: 641px) and (max-width: 768px) {
+  /* Medium screens - tablets in portrait */
+  .md-container {
+    max-width: 85vw;
+    padding: 1.5rem;
+  }
+}
+
+/* Accessibility improvements for mobile */
+@media (max-width: 768px) {
+  /* Focus states for touch devices */
+  .touch-focus:focus {
+    outline: 3px solid #ec4899;
+    outline-offset: 2px;
+  }
+  
+  /* Improved contrast for mobile readability */
+  .mobile-contrast {
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Prevent zoom on input focus */
+  input, select, textarea {
+    font-size: 16px;
+  }
+}
+
+/* Landscape orientation adjustments */
+@media (max-width: 768px) and (orientation: landscape) {
+  .landscape-header {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+  }
+  
+  .landscape-camera {
+    max-height: 70vh;
+  }
+  
+  /* Adjust logo size for landscape mobile */
+  .landscape-logo {
+    font-size: 2.25rem; /* 36px */
+    line-height: 1.2;
+  }
+}
+
+/* Brand consistency utilities */
+.brand-gradient {
+  background: linear-gradient(45deg, #ec4899, #f472b6, #be185d);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.brand-shadow {
+  text-shadow: 0 2px 4px rgba(236, 72, 153, 0.1);
+}
+
+.brand-border {
+  border-color: #ec4899;
+}
+
+.brand-bg {
+  background-color: rgba(236, 72, 153, 0.1);
+}
+
+/* Smooth transitions for all interactive elements */
+.smooth-transition {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Enhanced focus states for accessibility */
+.focus-brand:focus {
+  outline: 3px solid #ec4899;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.2);
+}
+
+/* Consistent button styling across components */
+.btn-primary {
+  background-color: #ec4899;
+  color: white;
+  border: 2px solid #ec4899;
+  border-radius: 0.75rem;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  min-height: 44px;
+}
+
+.btn-primary:hover {
+  background-color: #be185d;
+  border-color: #be185d;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(236, 72, 153, 0.3);
+}
+
+.btn-secondary {
+  background-color: #f3f4f6;
+  color: #374151;
+  border: 2px solid #d1d5db;
+  border-radius: 0.75rem;
+  padding: 0.75rem 1.5rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  min-height: 44px;
+}
+
+.btn-secondary:hover {
+  background-color: #e5e7eb;
+  border-color: #9ca3af;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive text scaling that maintains readability */
+.responsive-text {
+  font-size: clamp(0.875rem, 2.5vw, 1.125rem);
+  line-height: 1.5;
+}
+
+.responsive-heading {
+  font-size: clamp(1.5rem, 5vw, 3rem);
+  line-height: 1.2;
+}
+
+/* Ensure consistent spacing across all screen sizes */
+.consistent-spacing {
+  margin-bottom: clamp(0.5rem, 2vw, 1.5rem);
+}
+
+/* Final mobile optimizations */
+@media (max-width: 375px) {
+  /* iPhone SE and smaller devices */
+  .xs-optimized {
+    padding: 0.5rem;
+    font-size: 0.875rem;
+  }
+  
+  .xs-logo {
+    font-size: 2.25rem; /* 36px - still above minimum requirement */
+    letter-spacing: -0.025em;
   }
 }

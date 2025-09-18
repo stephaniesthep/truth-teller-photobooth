@@ -1,7 +1,8 @@
 import { useCallback, useState } from "react"
 import WebcamCapture from "../components/WebcamCapture"
 import PhotoGallery from "../components/PhotoGallery"
-import ModeToggle, { type EmotionMode } from "../components/ModeToggle"
+import ModeToggle from "../components/ModeToggle"
+import type { EmotionMode } from "../lib/emotionMapping"
 
 export function meta() {
 	return [
@@ -62,29 +63,33 @@ export default function Index() {
 				color: "#2d1b2e",
 			}}
 		>
-			{/* Header - Responsive */}
-			<header className="text-center py-2 sm:py-3 md:py-4 px-4">
+			{/* Header - Enhanced Mobile Responsive */}
+			<header className="text-center py-4 sm:py-5 md:py-6 lg:py-8 px-4 sm:px-6">
 				<h1
-					className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-1 font-serif italic transition-all duration-300"
+					className="font-bold mb-2 sm:mb-3 font-serif italic transition-all duration-300 leading-tight tracking-tight"
 					style={{
 						background:
 							"linear-gradient(45deg, #ec4899, #f472b6, #be185d)",
 						WebkitBackgroundClip: "text",
 						WebkitTextFillColor: "transparent",
 						backgroundClip: "text",
+						textShadow: "0 2px 4px rgba(236, 72, 153, 0.1)",
+						minHeight: "45px", // Still above 40px minimum requirement
+						lineHeight: "1.1",
+						fontSize: "clamp(2.85rem, 8vw, 6.65rem)", // 5% smaller than previous sizes
 					}}
 				>
 					Truth Teller
 				</h1>
-				<p className="text-base sm:text-lg md:text-xl text-amber-800 font-medium transition-all duration-300">
+				<p className="text-lg sm:text-xl md:text-2xl lg:text-3xl text-amber-800 font-medium transition-all duration-300 max-w-md mx-auto">
 					Face the truth ✨
 				</p>
 			</header>
 			
 			{/* Main Content - Enhanced responsive layout */}
-			<main className="flex-1 w-full max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 overflow-x-hidden">
+			<main className="flex-1 w-full max-w-6xl mx-auto px-4 sm:px-6 md:px-8 overflow-x-hidden">
 				{/* Mode Toggle */}
-				<div className="mb-2 sm:mb-3">
+				<div className="mb-3 sm:mb-4">
 					<ModeToggle
 						mode={emotionMode}
 						onModeChange={setEmotionMode}
@@ -94,29 +99,31 @@ export default function Index() {
 				{/* Error Message - Responsive */}
 				{cameraStatus === "error" && errorMessage && (
 					<div
-						className="mb-4 sm:mb-6 p-3 sm:p-4 rounded-lg sm:rounded-xl border-2 border-pink-200 transition-all duration-300"
+						className="mb-4 sm:mb-6 p-4 sm:p-5 rounded-xl border-2 border-pink-200 transition-all duration-300 mx-auto max-w-md"
 						style={{
 							backgroundColor: "rgba(236, 72, 153, 0.1)",
 						}}
 					>
-						<div className="flex items-center gap-2">
-							<div className="w-4 h-4 sm:w-5 sm:h-5 text-pink-700">⚠️</div>
-							<p className="text-pink-700 font-medium text-sm sm:text-base">Camera Error</p>
+						<div className="flex items-center gap-3">
+							<div className="w-5 h-5 sm:w-6 sm:h-6 text-pink-700">⚠️</div>
+							<p className="text-pink-700 font-medium text-base sm:text-lg">Camera Error</p>
 						</div>
-						<p className="text-pink-600 mt-1 text-sm sm:text-base">{errorMessage}</p>
+						<p className="text-pink-600 mt-2 text-sm sm:text-base mobile-contrast">{errorMessage}</p>
 					</div>
 				)}
 				
-				{/* Camera Component - Responsive container */}
-				<div className="mb-2 sm:mb-3 w-full overflow-hidden">
-					<WebcamCapture
-						onCameraStart={handleCameraStart}
-						onCameraStop={handleCameraStop}
-						onCameraError={handleCameraError}
-						onScreenshot={handleScreenshot}
-						onDeletePhoto={handleDeletePhoto}
-						mode={emotionMode}
-					/>
+				{/* Camera Component - Optimized mobile container */}
+				<div className="mb-4 sm:mb-6 w-full flex justify-center">
+					<div className="w-full max-w-[280px] sm:max-w-[360px] md:max-w-[480px] lg:max-w-[640px]">
+						<WebcamCapture
+							onCameraStart={handleCameraStart}
+							onCameraStop={handleCameraStop}
+							onCameraError={handleCameraError}
+							onScreenshot={handleScreenshot}
+							onDeletePhoto={handleDeletePhoto}
+							mode={emotionMode}
+						/>
+					</div>
 				</div>
 				
 				{/* Photo Gallery - Enhanced responsive container */}
@@ -126,18 +133,18 @@ export default function Index() {
 							photos={capturedPhotos}
 							onDownload={downloadPhoto}
 							onDelete={handleDeletePhoto}
-							className="mt-3 sm:mt-4 md:mt-6"
+							className="mt-4 sm:mt-6 md:mt-8"
 						/>
 					</div>
 				)}
 			</main>
 			
-			{/* Footer - Responsive */}
+			{/* Footer - Enhanced responsive */}
 			<footer
-				className="mt-auto py-2 sm:py-3 md:py-4 text-center px-4 transition-all duration-300"
+				className="mt-auto py-3 sm:py-4 md:py-6 text-center px-4 transition-all duration-300"
 				style={{ color: "#2d1b2e" }}
 			>
-				<p className="text-xs sm:text-sm opacity-75">
+				<p className="text-sm sm:text-base opacity-75 mobile-contrast">
 					© 2025 Truth Teller Photobooth
 				</p>
 			</footer>

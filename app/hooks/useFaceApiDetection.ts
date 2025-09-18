@@ -76,6 +76,7 @@ export const useAdvancedFaceDetection = (): UseAdvancedFaceDetectionReturn => {
     }
 
     const video = videoRef.current
+    if (!video) return // Additional null check for strict mode
 
     try {
       // Ensure video is still playing and ready
@@ -420,7 +421,7 @@ export const useAdvancedFaceDetection = (): UseAdvancedFaceDetectionReturn => {
             console.log('Watchdog: Detection loop stopped, restarting...')
             detectFaces()
           }
-        }, 3000) // Check every 3 seconds
+        }, 3000) as NodeJS.Timeout // Check every 3 seconds
       } else {
         console.log('Video not ready, waiting...')
         // If video isn't ready, wait and try again
@@ -435,7 +436,7 @@ export const useAdvancedFaceDetection = (): UseAdvancedFaceDetectionReturn => {
                 console.log('Watchdog: Detection loop stopped, restarting...')
                 detectFaces()
               }
-            }, 3000)
+            }, 3000) as NodeJS.Timeout
           }
         }, 1000)
       }
