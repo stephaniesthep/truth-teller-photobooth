@@ -453,12 +453,14 @@ body {
     max-width: none !important;
     aspect-ratio: 4/3;
     height: auto !important;
+    object-fit: contain !important; /* Changed from cover to contain to prevent cropping */
   }
   
   .camera-container-mobile-portrait {
     width: 100% !important;
     max-width: none !important;
     padding: 0 1rem;
+    overflow: visible !important; /* Allow content to be fully visible */
   }
 }
 
@@ -469,11 +471,13 @@ body {
     max-width: 70vw !important;
     aspect-ratio: 4/3;
     height: auto !important;
+    object-fit: contain !important; /* Changed from cover to contain to prevent cropping */
   }
   
   .camera-container-mobile-landscape {
     width: 100% !important;
     max-width: 70vw !important;
+    overflow: visible !important; /* Allow content to be fully visible */
   }
 }
 
@@ -527,7 +531,7 @@ body {
   width: 100%;
   height: auto;
   aspect-ratio: 4/3;
-  object-fit: cover;
+  object-fit: contain; /* Changed from cover to contain to prevent cropping */
 }
 
 /* Loading state responsive sizing */

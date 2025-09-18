@@ -479,7 +479,7 @@ const WebcamCapture: React.FC<WebcamCaptureProps> = ({
         </div>
       )}
 
-      <div className="relative inline-block overflow-hidden w-full max-w-full camera-smooth-transition">
+      <div className="relative w-full max-w-full camera-smooth-transition flex justify-center">
         {/* Countdown Overlay - positioned over video area only */}
         {countdown && (
           <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-50 rounded-lg">
@@ -490,13 +490,15 @@ const WebcamCapture: React.FC<WebcamCaptureProps> = ({
         )}
         <video
           ref={videoRef}
-          className={`rounded-lg border-2 border-pink-200 shadow-lg camera-responsive camera-mobile-portrait camera-mobile-landscape camera-tablet-portrait camera-tablet-landscape camera-desktop camera-smooth-transition ${isStreaming ? 'block' : 'hidden'}`}
+          className={`rounded-lg border-2 border-pink-200 shadow-lg camera-responsive camera-mobile-portrait camera-mobile-landscape camera-tablet-portrait camera-tablet-landscape camera-desktop camera-smooth-transition mx-auto ${isStreaming ? 'block' : 'hidden'}`}
           autoPlay
           playsInline
           muted
           style={{
             transform: 'scaleX(-1)',
-            aspectRatio: '4/3'
+            aspectRatio: '4/3',
+            display: 'block',
+            margin: '0 auto'
           }}
         />
 
@@ -570,11 +572,11 @@ const WebcamCapture: React.FC<WebcamCaptureProps> = ({
 
       {isStreaming && (
         <div className="mt-2 sm:mt-3 p-3 sm:p-4 bg-pink-50 rounded-xl border-2 border-pink-200">
-          <div className="flex justify-between items-center mb-1 sm:mb-2 gap-4 sm:gap-10">
-            <p className="m-0 text-pink-700 font-semibold">
+          <div className="flex justify-center items-center mb-1 sm:mb-2 gap-4 sm:gap-10">
+            <p className="m-0 text-pink-700 font-semibold text-center">
               AI Model: {isModelLoading ? '🟡 Loading...' : (modelsLoaded ? '💕 Ready' : '❤ Fallback Mode')}
             </p>
-            <p className="m-0 text-pink-700 font-semibold">
+            <p className="m-0 text-pink-700 font-semibold text-center">
               Detection: {faceDetectionEnabled ? (isDetecting ? '💕 Active' : '🟡 Starting...') : '❤ Disabled'}
             </p>
           </div>
