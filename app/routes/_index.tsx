@@ -55,31 +55,76 @@ export default function Index() {
 
 	return (
 		<div
-			className="min-h-screen w-full max-w-full flex flex-col overflow-x-hidden"
+			className="min-h-screen w-full flex flex-col overflow-x-hidden"
 			style={{
 				background:
 					"linear-gradient(135deg, #fce7f3 0%, #f3e8ff 50%, #fce7f3 100%)",
 				color: "#2d1b2e",
+				position: "relative",
 			}}
 		>
-			{/* Header - Responsive */}
-			<header className="text-center py-2 sm:py-3 md:py-4 px-4">
+			{/* Header - Fixed Position */}
+			<header
+				className="text-center px-4"
+				style={{
+					position: "absolute",
+					top: "20px",
+					left: "0",
+					right: "0",
+					zIndex: "10",
+					width: "100%",
+				}}
+			>
 				<h1
-					className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-1 font-serif italic transition-all duration-300"
+					className="font-black font-serif italic"
 					style={{
 						background:
 							"linear-gradient(45deg, #ec4899, #f472b6, #be185d)",
 						WebkitBackgroundClip: "text",
 						WebkitTextFillColor: "transparent",
 						backgroundClip: "text",
+						textShadow: "0 2px 4px rgba(236, 72, 153, 0.2)",
+						fontSize: "120px !important",
+						lineHeight: "1.1",
+						margin: "0 0 12px 0",
+						padding: "0",
+						width: "100%",
+						display: "block",
+						position: "static",
+						transform: "none",
+						zoom: "1",
+						minWidth: "auto",
+						maxWidth: "none",
+						whiteSpace: "normal",
+						fontWeight: "900",
 					}}
 				>
 					Truth Teller
 				</h1>
-				<p className="text-base sm:text-lg md:text-xl text-amber-800 font-medium transition-all duration-300">
+				<p
+					className="text-amber-800 font-bold"
+					style={{
+						fontSize: "48px !important",
+						lineHeight: "1.4",
+						margin: "0",
+						padding: "0",
+						width: "100%",
+						display: "block",
+						position: "static",
+						transform: "none",
+						zoom: "1",
+						minWidth: "auto",
+						maxWidth: "none",
+						whiteSpace: "normal",
+						fontWeight: "700",
+					}}
+				>
 					Face the truth ✨
 				</p>
 			</header>
+			
+			{/* Spacer for fixed header */}
+			<div style={{ height: "200px" }}></div>
 			
 			{/* Main Content - Enhanced responsive layout */}
 			<main className="flex-1 w-full max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 overflow-x-hidden">
