@@ -579,3 +579,259 @@ body {
     font-size: 1.875rem !important; /* Fixed size for ultra-wide screens */
   }
 }
+
+/* Emotion Detection Overlay Responsive Styles */
+.emotion-overlay-responsive {
+  /* Ensure overlay is always visible and properly positioned */
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Mobile Portrait - Enhanced overlay visibility */
+@media (max-width: 640px) and (orientation: portrait) {
+  .emotion-overlay-responsive {
+    /* Ensure overlay matches camera dimensions exactly */
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    z-index: 15 !important; /* Higher z-index for mobile */
+    pointer-events: none !important;
+    transform: none !important;
+  }
+}
+
+/* Mobile Landscape - Optimized overlay positioning */
+@media (max-width: 640px) and (orientation: landscape) {
+  .emotion-overlay-responsive {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    z-index: 15 !important;
+    pointer-events: none !important;
+    transform: none !important;
+  }
+}
+
+/* Tablet Portrait - Fixed visibility and positioning */
+@media (min-width: 641px) and (max-width: 768px) and (orientation: portrait) {
+  .emotion-overlay-responsive {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    z-index: 12 !important;
+    pointer-events: none !important;
+    transform: none !important;
+    /* Force visibility on tablets */
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+}
+
+/* Tablet Landscape - Enhanced reliability across orientations */
+@media (min-width: 641px) and (max-width: 1024px) and (orientation: landscape) {
+  .emotion-overlay-responsive {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    z-index: 12 !important;
+    pointer-events: none !important;
+    transform: none !important;
+    /* Ensure consistent visibility across tablet sizes */
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+}
+
+/* Desktop - Maintain original behavior */
+@media (min-width: 1025px) {
+  .emotion-overlay-responsive {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    z-index: 10 !important;
+    pointer-events: none !important;
+  }
+}
+
+/* Additional tablet-specific fixes for common problematic devices */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .emotion-overlay-responsive {
+    /* Force hardware acceleration for better performance */
+    will-change: transform !important;
+    backface-visibility: hidden !important;
+    /* Ensure proper canvas rendering */
+    image-rendering: -webkit-optimize-contrast !important;
+    image-rendering: crisp-edges !important;
+  }
+}
+
+/* iPad specific fixes */
+@media (min-width: 768px) and (max-width: 1024px) and (-webkit-min-device-pixel-ratio: 1) {
+  .emotion-overlay-responsive {
+    /* iPad-specific overlay positioning */
+    transform: translateZ(0) !important;
+    -webkit-transform: translateZ(0) !important;
+  }
+}
+
+/* High DPI display optimizations for overlay */
+@media (min-resolution: 2dppx) {
+  .emotion-overlay-responsive {
+    /* Ensure crisp rendering on high-DPI displays */
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: pixelated;
+  }
+}
+
+/* Orientation change handling for overlay */
+@media (orientation: portrait) {
+  .emotion-overlay-responsive {
+    /* Ensure overlay adapts to portrait orientation */
+    transition: none !important;
+  }
+}
+
+@media (orientation: landscape) {
+  .emotion-overlay-responsive {
+    /* Ensure overlay adapts to landscape orientation */
+    transition: none !important;
+  }
+}
+
+/* Mobile Download Icon Styling */
+.download-icon-mobile {
+  /* Ensure crisp rendering on all devices */
+  shape-rendering: geometricPrecision;
+  /* Smooth transitions for hover states */
+  transition: all 0.2s ease-in-out;
+  /* Ensure proper sizing */
+  flex-shrink: 0;
+  /* Center alignment */
+  display: inline-block;
+  vertical-align: middle;
+}
+
+/* Mobile-specific download button enhancements */
+@media (max-width: 767px) {
+  .download-icon-mobile {
+    /* Slightly larger on very small screens for better touch targets */
+    width: 16px;
+    height: 16px;
+    /* Enhanced stroke for better visibility */
+    stroke-width: 2.8;
+  }
+  
+  /* Hover/active states for mobile download buttons */
+  button:hover .download-icon-mobile,
+  button:active .download-icon-mobile {
+    /* Subtle scale effect on interaction */
+    transform: scale(1.1);
+    /* Slightly darker stroke on interaction */
+    stroke: #374151;
+  }
+  
+  /* Ensure download button maintains proper touch target size */
+  button:has(.download-icon-mobile) {
+    min-width: 32px;
+    min-height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+/* Tablet-specific adjustments */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .download-icon-mobile {
+    /* Standard size for tablets */
+    width: 14px;
+    height: 14px;
+    stroke-width: 2.5;
+  }
+}
+
+/* High-DPI display optimizations for download icon */
+@media (min-resolution: 2dppx) {
+  .download-icon-mobile {
+    /* Ensure crisp rendering on retina displays */
+    shape-rendering: crispEdges;
+  }
+}
+
+/* Accessibility improvements for download icon */
+@media (prefers-reduced-motion: reduce) {
+  .download-icon-mobile {
+    /* Disable transitions for users who prefer reduced motion */
+    transition: none !important;
+  }
+  
+  button:hover .download-icon-mobile,
+  button:active .download-icon-mobile {
+    transform: none !important;
+  }
+}
+
+/* Dark mode support for download icon (if needed in future) */
+@media (prefers-color-scheme: dark) {
+  .download-icon-mobile {
+    /* Ensure good contrast in dark mode */
+    stroke: currentColor;
+  }
+}
+
+/* Enhanced Photo Gallery Hover Responsiveness */
+.photo-container .group {
+  /* Ensure immediate hover response */
+  transition: transform 0.15s ease-out;
+}
+
+.photo-container .group:hover {
+  /* Faster hover response */
+  transition: transform 0.1s ease-out;
+}
+
+/* Faster overlay transitions for immediate responsiveness */
+.photo-container .group > div > div[class*="opacity-0"] {
+  transition: opacity 0.15s ease-out !important;
+}
+
+.photo-container .group:hover > div > div[class*="group-hover:opacity-100"] {
+  transition: opacity 0.1s ease-out !important;
+}
+
+/* Desktop-specific immediate hover for non-touch devices */
+@media (pointer: fine) and (hover: hover) {
+  .photo-container .group > div > div[class*="opacity-0"] {
+    transition: opacity 0.08s ease-out !important;
+  }
+  
+  .photo-container .group:hover > div > div[class*="group-hover:opacity-100"] {
+    transition: opacity 0.05s ease-out !important;
+  }
+  
+  /* Ensure buttons appear instantly on desktop hover */
+  .photo-container .group:hover button {
+    transition: all 0.1s ease-out !important;
+  }
+}
+
+/* Mobile-specific touch optimizations */
+@media (pointer: coarse) {
+  .photo-container .group {
+    /* Slightly longer transitions for touch devices */
+    transition: transform 0.2s ease-out;
+  }
+}

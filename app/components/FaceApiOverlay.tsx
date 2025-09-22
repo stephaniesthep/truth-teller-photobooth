@@ -1,4 +1,4 @@
-import { useEffect, useRef, forwardRef, useMemo } from 'react'
+import { useEffect, useRef, forwardRef, useMemo, useCallback } from 'react'
 import * as faceapi from 'face-api.js'
 import { getEmotionLabel, getEmotionColor, type EmotionMode } from '../lib/emotionMapping'
 
@@ -12,6 +12,18 @@ interface FaceDetection {
   emotionConfidence: number
   landmarks?: faceapi.FaceLandmarks68
   expressions?: faceapi.FaceExpressions
+  // Additional properties for responsive scaling
+  originalWidth?: number
+  originalHeight?: number
+  deviceType?: string
+  scalingFactors?: {
+    sizeMultiplier: number
+    cornerSize: number
+    lineWidth: number
+    fontSize: number
+    labelHeight: number
+    padding: number
+  }
 }
 
 interface AdvancedEmotionOverlayProps {
@@ -42,6 +54,73 @@ const AdvancedEmotionOverlay = forwardRef<HTMLCanvasElement, AdvancedEmotionOver
   // Use the forwarded ref if provided, otherwise use internal ref
   const canvasElement = (ref as React.RefObject<HTMLCanvasElement>)?.current || canvasRef.current
 
+  // Device detection for responsive scaling
+  const getDeviceType = useCallback(() => {
+    if (typeof window === 'undefined') return 'desktop'
+    
+    const width = window.innerWidth
+    const height = window.innerHeight
+    const isPortrait = height > width
+    
+    if (width <= 640) {
+      return isPortrait ? 'mobile-portrait' : 'mobile-landscape'
+    } else if (width <= 1024) {
+      return isPortrait ? 'tablet-portrait' : 'tablet-landscape'
+    }
+    return 'desktop'
+  }, [])
+
+  // Get scaling factors based on device type
+  const getScalingFactors = useCallback((deviceType: string) => {
+    switch (deviceType) {
+      case 'mobile-portrait':
+        return {
+          sizeMultiplier: 1.4, // 40% larger squares on mobile portrait
+          cornerSize: 30,
+          lineWidth: 4,
+          fontSize: 20,
+          labelHeight: 45,
+          padding: 28
+        }
+      case 'mobile-landscape':
+        return {
+          sizeMultiplier: 1.3, // 30% larger squares on mobile landscape
+          cornerSize: 28,
+          lineWidth: 4,
+          fontSize: 18,
+          labelHeight: 42,
+          padding: 26
+        }
+      case 'tablet-portrait':
+        return {
+          sizeMultiplier: 1.25, // 25% larger squares on tablet portrait
+          cornerSize: 26,
+          lineWidth: 4,
+          fontSize: 18,
+          labelHeight: 40,
+          padding: 24
+        }
+      case 'tablet-landscape':
+        return {
+          sizeMultiplier: 1.2, // 20% larger squares on tablet landscape
+          cornerSize: 24,
+          lineWidth: 3,
+          fontSize: 17,
+          labelHeight: 38,
+          padding: 22
+        }
+      default: // desktop
+        return {
+          sizeMultiplier: 1.0, // Original size on desktop
+          cornerSize: mode === 'fun' ? 25 : 20,
+          lineWidth: mode === 'fun' ? 5 : 4,
+          fontSize: mode === 'fun' ? 18 : 16,
+          labelHeight: mode === 'fun' ? 40 : 35,
+          padding: mode === 'fun' ? 24 : 20
+        }
+    }
+  }, [mode])
+
   // Enhanced emotion colors and emojis
   // Emotion configuration for future use
   // const emotionConfig: Record<string, { color: string; emoji: string; gradient: string }> = {
@@ -55,17 +134,35 @@ const AdvancedEmotionOverlay = forwardRef<HTMLCanvasElement, AdvancedEmotionOver
   //   focused: { color: '#ec4899', emoji: '🤔', gradient: 'linear-gradient(135deg, #ec4899, #db2777)' }
   // }
 
-  // Memoize face data to prevent unnecessary re-renders
+  // Memoize face data with responsive scaling to prevent unnecessary re-renders
   const stableFaces = useMemo(() => {
-    return faces.map(face => ({
-      ...face,
-      // Round coordinates to prevent micro-movements causing flicker
-      x: Math.round(face.x),
-      y: Math.round(face.y),
-      width: Math.round(face.width),
-      height: Math.round(face.height)
-    }))
-  }, [faces])
+    const deviceType = getDeviceType()
+    const scalingFactors = getScalingFactors(deviceType)
+    
+    return faces.map(face => {
+      // Calculate scaled dimensions for better visibility on mobile/tablet
+      const scaledWidth = Math.round(face.width * scalingFactors.sizeMultiplier)
+      const scaledHeight = Math.round(face.height * scalingFactors.sizeMultiplier)
+      
+      // Center the scaled square on the original face position
+      const offsetX = Math.round((scaledWidth - face.width) / 2)
+      const offsetY = Math.round((scaledHeight - face.height) / 2)
+      
+      return {
+        ...face,
+        // Round coordinates to prevent micro-movements causing flicker
+        x: Math.max(0, Math.round(face.x - offsetX)),
+        y: Math.max(0, Math.round(face.y - offsetY)),
+        width: scaledWidth,
+        height: scaledHeight,
+        // Store original dimensions and scaling info for reference
+        originalWidth: face.width,
+        originalHeight: face.height,
+        deviceType,
+        scalingFactors
+      }
+    })
+  }, [faces, getDeviceType, getScalingFactors])
 
   useEffect(() => {
     const canvas = canvasElement || canvasRef.current
@@ -86,20 +183,21 @@ const AdvancedEmotionOverlay = forwardRef<HTMLCanvasElement, AdvancedEmotionOver
     // Only draw if we have faces to avoid unnecessary renders
     if (stableFaces.length === 0) return
 
-    // Draw face detection with mode-aware styling
+    // Draw face detection with responsive and mode-aware styling
     stableFaces.forEach((face) => {
       const emotionColor = getEmotionColor(face.emotion, mode)
+      const scalingFactors = face.scalingFactors || getScalingFactors('desktop')
       
-      // Square outline with mode-aware color
+      // Square outline with responsive and mode-aware styling
       ctx.strokeStyle = emotionColor
-      ctx.lineWidth = mode === 'fun' ? 4 : 3
+      ctx.lineWidth = scalingFactors.lineWidth
       ctx.setLineDash([])
       ctx.strokeRect(face.x, face.y, face.width, face.height)
 
-      // Corner markers with mode-aware styling
-      const cornerSize = mode === 'fun' ? 25 : 20
+      // Corner markers with responsive styling
+      const cornerSize = scalingFactors.cornerSize
       ctx.strokeStyle = emotionColor
-      ctx.lineWidth = mode === 'fun' ? 5 : 4
+      ctx.lineWidth = scalingFactors.lineWidth
       ctx.lineCap = 'round'
 
       // Top-left corner
@@ -130,17 +228,17 @@ const AdvancedEmotionOverlay = forwardRef<HTMLCanvasElement, AdvancedEmotionOver
       ctx.lineTo(face.x + face.width, face.y + face.height - cornerSize)
       ctx.stroke()
 
-      // Mode-aware emotion label
+      // Responsive emotion label
       const emotionText = getEmotionLabel(face.emotion, mode)
       
-      const fontSize = mode === 'fun' ? 18 : 16
+      const fontSize = scalingFactors.fontSize
       ctx.font = `bold ${fontSize}px Inter, sans-serif`
       const emotionMetrics = ctx.measureText(emotionText)
       
-      // Mode-aware background styling
-      const labelHeight = mode === 'fun' ? 40 : 35
+      // Responsive background styling
+      const labelHeight = scalingFactors.labelHeight
       const labelY = face.y - labelHeight - 5
-      const padding = mode === 'fun' ? 24 : 20
+      const padding = scalingFactors.padding
       
       // Background with mode-aware color and opacity
       ctx.fillStyle = emotionColor + (mode === 'fun' ? 'ee' : 'dd')
@@ -154,10 +252,10 @@ const AdvancedEmotionOverlay = forwardRef<HTMLCanvasElement, AdvancedEmotionOver
         ctx.strokeRect(face.x, labelY, emotionMetrics.width + padding, labelHeight)
       }
 
-      // Emotion text with mode-aware positioning
+      // Emotion text with responsive positioning
       ctx.fillStyle = 'white'
       ctx.font = `bold ${fontSize}px Inter, sans-serif`
-      const textY = mode === 'fun' ? face.y - 12 : face.y - 15
+      const textY = face.y - (labelHeight * 0.3) // Responsive text positioning
       const textX = face.x + (padding / 2)
       ctx.fillText(emotionText, textX, textY)
     })
@@ -167,7 +265,7 @@ const AdvancedEmotionOverlay = forwardRef<HTMLCanvasElement, AdvancedEmotionOver
   return (
     <canvas
       ref={ref || canvasRef}
-      className={`advanced-emotion-overlay ${className}`}
+      className={`advanced-emotion-overlay emotion-overlay-responsive ${className}`}
       style={{
         position: 'absolute',
         top: 0,

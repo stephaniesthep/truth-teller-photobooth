@@ -236,8 +236,22 @@ export default function PhotoGallery({
     const container = scrollContainerRef.current
     if (!container) return
 
-    // Detect touch device
-    setIsTouchDevice('ontouchstart' in window || navigator.maxTouchPoints > 0)
+    // More accurate touch device detection - only consider it a touch device if it's primarily touch-based
+    const isTouchPrimary = () => {
+      // Check if it's a mobile device first
+      if (screenSize === 'mobile') return true
+      
+      // For tablets and desktop, be more conservative
+      if ('ontouchstart' in window && navigator.maxTouchPoints > 0) {
+        // Check if it has a mouse as well (hybrid devices)
+        const hasPointerDevice = window.matchMedia('(pointer: fine)').matches
+        // If it has fine pointer (mouse), prioritize hover behavior
+        return !hasPointerDevice
+      }
+      return false
+    }
+
+    setIsTouchDevice(isTouchPrimary())
 
     // Initial scroll button state
     updateScrollButtons()
@@ -256,7 +270,7 @@ export default function PhotoGallery({
       document.removeEventListener('keydown', handleKeyDown)
       document.removeEventListener('click', handleClickOutside)
     }
-  }, [updateScrollButtons, handleKeyDown, handleClickOutside])
+  }, [updateScrollButtons, handleKeyDown, handleClickOutside, screenSize])
 
   // Update scroll buttons when photos change
   useEffect(() => {
@@ -409,8 +423,8 @@ export default function PhotoGallery({
                     #{index + 1}
                   </div>
 
-                  {/* Responsive hover overlay with actions */}
-                  <div className={`absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent transition-opacity duration-300 ${
+                  {/* Responsive hover overlay with actions - Immediate hover response */}
+                  <div className={`absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent transition-opacity duration-200 ${
                     isTouchDevice
                       ? (isActive ? 'opacity-100' : 'opacity-0')
                       : 'opacity-0 group-hover:opacity-100'
@@ -432,8 +446,28 @@ export default function PhotoGallery({
                               ? 'px-2 py-1 text-xs rounded-md'
                               : 'px-3 py-2 text-sm rounded-lg'
                           }`}
+                          title={screenSize === 'mobile' ? 'Download photo' : undefined}
                         >
-                          {screenSize === 'mobile' ? 'DL' : 'Download'}
+                          {screenSize === 'mobile' ? (
+                            // Download icon for mobile - SVG downward arrow
+                            <svg
+                              width="14"
+                              height="14"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2.5"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              className="download-icon-mobile"
+                            >
+                              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                              <polyline points="7,10 12,15 17,10"/>
+                              <line x1="12" y1="15" x2="12" y2="3"/>
+                            </svg>
+                          ) : (
+                            'Download'
+                          )}
                         </button>
                       )}
                       {onDelete && (
@@ -456,15 +490,11 @@ export default function PhotoGallery({
                     </div>
                   </div>
 
-                  {/* Mobile tap indicator - Responsive */}
-                  {isTouchDevice && !isActive && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 hover:opacity-100 transition-opacity duration-200">
-                      <div className={`bg-white/90 rounded-full text-gray-700 font-medium transition-all duration-300 ${
-                        screenSize === 'mobile'
-                          ? 'p-1 text-xs'
-                          : 'p-2 text-sm'
-                      }`}>
-                        {screenSize === 'mobile' ? 'Tap' : 'Tap for actions'}
+                  {/* Mobile tap indicator - Only show on actual touch devices */}
+                  {isTouchDevice && screenSize === 'mobile' && !isActive && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/10 opacity-0 hover:opacity-100 transition-opacity duration-200">
+                      <div className="bg-white/90 rounded-full text-gray-700 font-medium p-1 text-xs">
+                        Tap
                       </div>
                     </div>
                   )}
