@@ -279,9 +279,18 @@ const WebcamCapture: React.FC<WebcamCaptureProps> = ({
         return
       }
 
-      // Set canvas dimensions to match video
-      canvas.width = video.videoWidth
-      canvas.height = video.videoHeight
+      // Calculate square crop dimensions to match viewfinder
+      const videoWidth = video.videoWidth
+      const videoHeight = video.videoHeight
+      const squareSize = Math.min(videoWidth, videoHeight)
+      
+      // Calculate crop position to center the square
+      const cropX = (videoWidth - squareSize) / 2
+      const cropY = (videoHeight - squareSize) / 2
+
+      // Set canvas to square dimensions (matching final output)
+      canvas.width = squareSize
+      canvas.height = squareSize
 
       // Save the context state
       context.save()
@@ -290,15 +299,33 @@ const WebcamCapture: React.FC<WebcamCaptureProps> = ({
       context.scale(-1, 1)
       context.translate(-canvas.width, 0)
 
-      // Draw the current video frame to canvas (now unmirrored)
-      context.drawImage(video, 0, 0, canvas.width, canvas.height)
+      // Draw only the square crop area from the video (now unmirrored)
+      // This ensures the captured image matches exactly what's shown in the viewfinder
+      context.drawImage(
+        video,
+        cropX, cropY, squareSize, squareSize, // Source crop area
+        0, 0, squareSize, squareSize // Destination area (full canvas)
+      )
 
       // Restore the context state
       context.restore()
 
-      // Draw the overlay on top if it exists
+      // Draw the overlay on top if it exists, scaled to match the square crop
       if (overlayRef.current) {
-        context.drawImage(overlayRef.current, 0, 0, canvas.width, canvas.height)
+        // Scale and position the overlay to match the cropped square area
+        const overlayScaleX = squareSize / videoWidth
+        const overlayScaleY = squareSize / videoHeight
+        const overlayOffsetX = -cropX * overlayScaleX
+        const overlayOffsetY = -cropY * overlayScaleY
+        
+        context.save()
+        context.scale(overlayScaleX, overlayScaleY)
+        context.drawImage(
+          overlayRef.current,
+          overlayOffsetX, overlayOffsetY,
+          videoWidth, videoHeight
+        )
+        context.restore()
       }
 
       // Convert canvas to image data URL
@@ -493,29 +520,48 @@ const WebcamCapture: React.FC<WebcamCaptureProps> = ({
       
       {(isStreaming || isLoading) && (
         <div className="relative flex justify-center camera-container-mobile-portrait camera-container-mobile-landscape camera-container-tablet-portrait camera-container-tablet-landscape camera-container-desktop">
-          <video
-            ref={videoRef}
-            className={`rounded-lg border-2 border-pink-200 shadow-lg camera-smooth-transition camera-responsive camera-mobile-portrait camera-mobile-landscape camera-tablet-portrait camera-tablet-landscape camera-desktop ${isStreaming ? 'block' : 'hidden'}`}
-            autoPlay
-            playsInline
-            muted
-            style={{
-              transform: 'scaleX(-1)',
-              display: isStreaming ? 'block' : 'none'
-            }}
-          />
-
-          {isStreaming && videoSize.width > 0 && (
-            <FaceApiOverlay
-              ref={overlayRef}
-              faces={faceDetectionEnabled ? detectedFaces : []}
-              videoWidth={videoSize.width}
-              videoHeight={videoSize.height}
-              showLandmarks={false}
-              showExpressions={false}
-              mode={mode}
+          {/* Square Viewfinder Container */}
+          <div className="relative square-viewfinder-container">
+            <video
+              ref={videoRef}
+              className={`square-viewfinder-video ${isStreaming ? 'block' : 'hidden'}`}
+              autoPlay
+              playsInline
+              muted
+              style={{
+                transform: 'scaleX(-1)',
+                display: isStreaming ? 'block' : 'none'
+              }}
             />
-          )}
+
+            {/* Square Crop Overlay */}
+            <div className="absolute inset-0 pointer-events-none square-crop-overlay">
+              {/* Corner Markers */}
+              <div className="absolute top-2 left-2 w-6 h-6 border-l-3 border-t-3 border-white opacity-80"></div>
+              <div className="absolute top-2 right-2 w-6 h-6 border-r-3 border-t-3 border-white opacity-80"></div>
+              <div className="absolute bottom-2 left-2 w-6 h-6 border-l-3 border-b-3 border-white opacity-80"></div>
+              <div className="absolute bottom-2 right-2 w-6 h-6 border-r-3 border-b-3 border-white opacity-80"></div>
+              
+              {/* Center Cross Lines */}
+              <div className="absolute top-1/2 left-1/2 w-8 h-0.5 bg-white opacity-40 transform -translate-x-1/2 -translate-y-1/2"></div>
+              <div className="absolute top-1/2 left-1/2 w-0.5 h-8 bg-white opacity-40 transform -translate-x-1/2 -translate-y-1/2"></div>
+              
+              {/* Square Frame Border */}
+              <div className="absolute inset-1 border-2 border-white opacity-60 rounded-lg"></div>
+            </div>
+
+            {isStreaming && videoSize.width > 0 && (
+              <FaceApiOverlay
+                ref={overlayRef}
+                faces={faceDetectionEnabled ? detectedFaces : []}
+                videoWidth={videoSize.width}
+                videoHeight={videoSize.height}
+                showLandmarks={false}
+                showExpressions={false}
+                mode={mode}
+              />
+            )}
+          </div>
         </div>
       )}
 
